@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Tutorial completo paso a paso para crear un proyecto con React y Next.js desde cero hasta nivel profesional.">
+<meta name="color-scheme" content="dark light">
+<title>Tutorial React + Next.js — De cero a nivel profesional (V001)</title>
+<style>
+/* ============ BASE ============ */
+*,*::before,*::after{box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+:root{
+  --bg:#0a0e1a;--card:#0f172a;--line:#1e3a5f;--tx:#e2e8f0;--tx2:#94a3b8;
+  --ac:#38bdf8;--ac2:#22d3ee;--ok:#34d399;--warn:#fbbf24;--bad:#f87171;
+  --navbg:rgba(10,14,26,.93);--codebg:#0b1220;--codetx:#dbeafe;--soft:#ffffff0d;
+}
+html[data-theme="light"]{
+  --bg:#eef2f7;--card:#ffffff;--line:#cbd5e1;--tx:#0f172a;--tx2:#475569;
+  --ac:#0284c7;--ac2:#0891b2;--navbg:rgba(255,255,255,.94);--soft:#0f172a0d;
+}
+body{
+  margin:0;padding-top:58px;background:var(--bg);color:var(--tx);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:1rem;line-height:1.65;overflow-x:hidden;
+}
+img,svg{max-width:100%}
+a{color:var(--ac)}
+h1,h2,h3,h4{line-height:1.25;margin:0 0 .5em}
+h1{font-size:1.9rem}
+h2{font-size:1.45rem;margin-top:0}
+h3{font-size:1.15rem;margin-top:1.4em}
+h4{font-size:1rem;margin-top:1.2em}
+p{margin:0 0 .9em}
+ul,ol{margin:0 0 1em;padding-left:1.3em}
+li{margin:.25em 0}
+hr{border:0;border-top:1px solid var(--line);margin:1.6em 0}
+strong{color:var(--tx)}
+
+/* ============ BARRA SUPERIOR ============ */
+nav.top{
+  position:fixed;top:0;left:0;right:0;height:58px;z-index:40;
+  display:flex;align-items:center;gap:8px;padding:0 10px;
+  background:var(--navbg);border-bottom:1px solid var(--line);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+}
+#prog{position:absolute;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--ac),var(--ac2));z-index:41;transition:width .1s linear}
+#chips{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;flex:1;padding:8px 2px;scrollbar-width:none}
+#chips::-webkit-scrollbar{display:none}
+.chip{
+  flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+  min-height:42px;padding:0 13px;border-radius:999px;border:1px solid var(--line);
+  background:var(--card);color:var(--tx2);font:inherit;font-size:.85rem;
+  cursor:pointer;white-space:nowrap;transition:.18s;
+}
+.chip:hover{color:var(--tx);border-color:var(--ac)}
+.chip.active{background:#38bdf822;border-color:var(--ac);color:var(--ac);font-weight:600}
+#mb{font-weight:700;color:var(--ac);border-color:#38bdf888}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible,#dr a:focus-visible,.tbtn:focus-visible,#top:focus-visible,.copy:focus-visible{
+  outline:2px solid var(--ac);outline-offset:2px
+}
+
+/* ============ PANEL ÍNDICE ============ */
+#dr{
+  position:fixed;top:58px;left:0;bottom:0;width:min(330px,88vw);
+  background:#0f172a;border-right:1px solid #1e3a5f;
+  transform:translateX(-105%);transition:transform .25s ease;
+  z-index:35;overflow-y:auto;overflow-x:hidden;padding:10px;
+  -webkit-overflow-scrolling:touch;
+}
+#dr.o{transform:none}
+.dr-h{font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:#64748b;padding:4px 8px 8px}
+.dr-q{
+  position:sticky;top:-10px;z-index:2;width:100%;background:#0b1220;color:#e2e8f0;
+  border:1px solid #1e3a5f;border-radius:10px;padding:11px 12px;font:inherit;
+  font-size:.9rem;margin-bottom:8px;min-height:44px;
+}
+.dr-q:focus{outline:2px solid #38bdf8;outline-offset:1px}
+#dr a{
+  display:block;padding:12px;border-radius:8px;color:#e2e8f0;cursor:pointer;
+  min-height:44px;text-decoration:none;font-size:.92rem;line-height:1.35;
+}
+#dr a:hover{background:#ffffff0d}
+#dr a.on{background:#00d4ff22;color:#00d4ff;font-weight:600}
+#dr a.dr-r strong{display:block;color:#7dd3fc;font-size:.9rem;margin-bottom:2px}
+#dr a.dr-r span{display:block;color:#94a3b8;font-size:.78rem;line-height:1.4}
+.dr-empty{color:#94a3b8;font-size:.85rem;padding:10px 8px}
+.dr-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid #1e3a5f}
+.tbtn{
+  min-height:44px;border-radius:10px;border:1px solid #1e3a5f;background:#0b1220;
+  color:#cbd5e1;font:inherit;font-size:.82rem;cursor:pointer;transition:.15s
+}
+.tbtn:hover{border-color:#38bdf8;color:#38bdf8}
+.tbtn:active{transform:scale(.98)}
+
+/* ============ CONTENIDO ============ */
+main{max-width:940px;margin:0 auto;padding:18px 14px 90px}
+.sec{display:none}
+.sec.on{display:block;animation:fadein .28s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0}
+.grid2 .card{margin:0}
+.note,.tip,.warnbox,.okbox{border-radius:12px;padding:12px 14px;margin:12px 0;font-size:.95rem;border-left:4px solid}
+.note{background:#38bdf814;border-color:var(--ac)}
+.tip{background:#34d39914;border-color:var(--ok)}
+.warnbox{background:#fbbf2414;border-color:var(--warn)}
+.okbox{background:#34d39914;border-color:var(--ok)}
+.note strong,.tip strong,.warnbox strong{display:block;margin-bottom:2px}
+
+.eyebrow{font-size:.78rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ac);margin:0 0 6px;font-weight:700}
+.lead{font-size:1.05rem;color:var(--tx2)}
+.pill{display:inline-block;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--soft);font-size:.78rem;color:var(--tx2);margin:0 6px 6px 0}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:46px;padding:0 18px;border-radius:12px;border:1px solid var(--line);
+  background:var(--card);color:var(--tx);font:inherit;font-size:.95rem;font-weight:600;
+  cursor:pointer;transition:.18s;text-decoration:none;
+}
+.btn:hover{border-color:var(--ac);color:var(--ac)}
+.btn.primary{background:linear-gradient(135deg,#0ea5e9,#22d3ee);color:#04121f;border-color:transparent}
+.btn.primary:hover{color:#04121f;filter:brightness(1.08)}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0}
+
+.secnav{display:flex;justify-content:space-between;gap:10px;margin:34px 0 0;padding-top:16px;border-top:1px solid var(--line)}
+.secnav .btn{font-size:.86rem;padding:0 14px}
+
+/* ============ HERO ============ */
+.hero{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:10px}
+.hero-art{width:100%;max-width:400px;margin:0 auto;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#0b1222;line-height:0}
+.hero-art img{width:100%;height:auto;display:block}
+.hero-svg{width:100%;height:auto;display:block}
+@media(min-width:820px){
+  .hero{grid-template-columns:minmax(260px,340px) 1fr;align-items:center}
+  .hero-art{max-width:340px;margin:0}
+}
+
+/* ============ CÓDIGO ============ */
+.code{background:var(--codebg);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+.code-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;background:#ffffff0a;border-bottom:1px solid var(--line)}
+.code-h .lang{font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tx2)}
+.copy{
+  min-height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--line);
+  background:transparent;color:var(--ac);font:inherit;font-size:.78rem;font-weight:600;cursor:pointer
+}
+.copy:hover{background:#38bdf81a}
+.code pre{margin:0;padding:13px;overflow-x:auto;color:var(--codetx);font-size:.84rem;line-height:1.55}
+.code code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;white-space:pre}
+code.kw{background:#38bdf815;border:1px solid var(--line);padding:.08em .38em;border-radius:6px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88em;color:#7dd3fc;word-break:break-word}
+
+/* ============ TABLAS ============ */
+.tw{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.9rem}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--soft);color:var(--ac);font-size:.82rem;letter-spacing:.04em;text-transform:uppercase}
+tr:last-child td{border-bottom:0}
+td code{font-size:.86em}
+
+/* ============ DESPLEGABLES ============ */
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}
+summary{
+  cursor:pointer;padding:13px 15px;font-weight:600;list-style:none;
+  display:flex;gap:10px;align-items:flex-start;min-height:44px;font-size:.96rem
+}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸";color:var(--ac);display:inline-block;transition:transform .2s;flex:0 0 auto}
+details[open] summary::before{transform:rotate(90deg)}
+.dbody{padding:0 15px 14px;color:var(--tx2);font-size:.95rem}
+.dbody p:last-child{margin-bottom:0}
+
+/* ============ PASOS ============ */
+.step{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 16px 8px 58px;margin:14px 0}
+.step::before{
+  content:attr(data-n);position:absolute;left:14px;top:14px;width:30px;height:30px;
+  display:flex;align-items:center;justify-content:center;border-radius:50%;
+  background:#38bdf81f;color:var(--ac);font-weight:800;font-size:.85rem;border:1px solid #38bdf855
+}
+.step h3{margin-top:0}
+.step .lbl{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--ac);font-weight:700;display:block;margin-top:10px}
+
+/* ============ LISTAS DE COMPROBACIÓN ============ */
+.cklist{list-style:none;padding:0;margin:12px 0}
+.cklist li{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line)}
+.cklist li:last-child{border-bottom:0}
+.cklist input[type=checkbox]{
+  appearance:none;-webkit-appearance:none;width:22px;height:22px;flex:0 0 auto;margin-top:2px;
+  border:1.5px solid var(--line);border-radius:6px;background:var(--card);cursor:pointer;position:relative
+}
+.cklist input[type=checkbox]:checked{background:var(--ac);border-color:var(--ac)}
+.cklist input[type=checkbox]:checked::after{
+  content:"";position:absolute;left:6px;top:2px;width:6px;height:11px;
+  border:solid #04121f;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)
+}
+.cklist input[type=checkbox]:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.cklist label{cursor:pointer;flex:1}
+
+/* ============ FLUJOS ============ */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0}
+.flow .box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.85rem;flex:1 1 130px;text-align:center}
+.flow .arrow{color:var(--ac);font-weight:700;flex:0 0 auto}
+
+/* ============ CRÉDITOS ============ */
+.author{font-size:2.1rem;font-weight:800;color:var(--ac);margin:6px 0 0;letter-spacing:-.01em;line-height:1.1}
+.author-role{font-size:1rem;color:var(--tx2);margin:0 0 14px}
+.badge{display:inline-block;padding:6px 12px;border-radius:999px;background:#38bdf81a;border:1px solid #38bdf855;color:var(--ac);font-size:.8rem;font-weight:700}
+
+/* ============ VOLVER ARRIBA ============ */
+#top{
+  position:fixed;right:14px;bottom:16px;width:48px;height:48px;border-radius:50%;
+  border:1px solid var(--line);background:var(--card);color:var(--ac);font-size:1.2rem;
+  cursor:pointer;z-index:30;display:none;align-items:center;justify-content:center;
+  box-shadow:0 6px 20px #0008
+}
+#top.show{display:flex}
+
+/* ============ SVG ANIMACIONES ============ */
+.hv-pulse{transform-box:fill-box;transform-origin:center;animation:hvPulse 3.4s ease-in-out infinite}
+@keyframes hvPulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
+.hv-breathe{transform-box:fill-box;transform-origin:center;animation:hvBreathe 7s ease-in-out infinite}
+@keyframes hvBreathe{0%,100%{opacity:.45;transform:scale(.94)}50%{opacity:.9;transform:scale(1.06)}}
+.hv-float{transform-box:fill-box;transform-origin:center;animation:hvFloat 7s ease-in-out infinite alternate}
+@keyframes hvFloat{from{transform:translateY(-5px)}to{transform:translateY(6px)}}
+.hv-rise{transform-box:fill-box;transform-origin:center;animation:hvRise 8s linear infinite}
+@keyframes hvRise{0%{opacity:0;transform:translateY(10px)}20%{opacity:.85}70%{opacity:.6}100%{opacity:0;transform:translateY(-72px)}}
+.hv-led{animation:hvLed 2.2s steps(1) infinite}
+@keyframes hvLed{0%,49%{opacity:1}50%,100%{opacity:.15}}
+.hero-art.no-anim *,.hero-art.no-anim{animation:none !important}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .hero-art *,.sec,.chip,.btn{animation:none !important;transition:none !important}
+}
+
+/* ============ IMPRESIÓN ============ */
+@media print{
+  @page{size:A4 portrait;margin:14mm 12mm}
+  html,body{background:#fff !important;color:#000 !important;padding:0 !important;font-size:11pt}
+  nav.top,#dr,#prog,#top,.copy,.chip,.dr-tools,.secnav,.hero-actions,.tbtn{display:none !important}
+  .sec{display:block !important;animation:none !important;page-break-inside:auto}
+  .card,.step,.code,table,details{break-inside:avoid;page-break-inside:avoid}
+  .code{background:#fff !important;border:1px solid #999 !important}
+  .code-h{background:#eee !important;border-bottom:1px solid #999 !important;color:#000 !important}
+  .code pre,.code code{background:#fff !important;color:#000 !important;white-space:pre-wrap !important;word-break:break-word}
+  th,td{border:1px solid #999 !important;color:#000 !important}
+  th{background:#eee !important}
+  a{color:#000 !important;text-decoration:underline}
+  .hero-art{max-width:78mm;margin:0 auto 6mm;border:1px solid #999}
+  details>summary{list-style:none}
+  .note,.tip,.warnbox,.okbox{background:#fff !important;border-left:3px solid #000 !important}
+  .author{color:#000 !important}
+}
+</style>
+</head>
+<body>
+
+<div id="prog" aria-hidden="true"></div>
+
+<nav class="top" aria-label="Barra de navegación principal">
+  <button class="chip" id="mb" type="button" aria-label="Abrir índice" aria-expanded="false" aria-controls="dr">☰ Índice</button>
+  <div id="chips" role="tablist" aria-label="Secciones del tutorial"></div>
+</nav>
+
+<div id="dr" aria-label="Índice de secciones">
+  <div class="dr-h">Índice del tutorial</div>
+  <input id="q" class="dr-q" type="search" placeholder="Buscar en el tutorial…" aria-label="Buscar en el tutorial" autocomplete="off">
+  <div id="drList"></div>
+  <div class="dr-tools">
+    <button class="tbtn" id="fsMinus" type="button" aria-label="Reducir tamaño de letra">A− Letra</button>
+    <button class="tbtn" id="fsPlus" type="button" aria-label="Aumentar tamaño de letra">A+ Letra</button>
+    <button class="tbtn" id="thm" type="button" aria-label="Cambiar entre tema oscuro y claro">◐ Tema</button>
+    <button class="tbtn" id="prt" type="button" aria-label="Imprimir o guardar como PDF">⎙ Imprimir / PDF</button>
+    <button class="tbtn" id="rst" type="button" aria-label="Reiniciar el progreso guardado" style="grid-column:1 / -1">↺ Reiniciar progreso</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ================= INICIO ================= -->
+<section class="sec on" id="s0" data-t="INICIO">
+  <div class="hero">
+    <div class="hero-art" id="heroHome" role="img" aria-label="Ilustración animada: un servidor envía datos a un núcleo de componentes React, que se conecta con el navegador del cliente; las páginas del App Router orbitan alrededor."></div>
+    <div class="hero-txt">
+      <p class="eyebrow">Manual técnico · De principiante absoluto a nivel profesional</p>
+      <h1>Crear un proyecto con React y Next.js de cero a nivel profesional</h1>
+      <p class="lead">Instala tu entorno, crea tu primera aplicación con Next.js y su App Router, entiende cada archivo que aparece y termina construyendo una tarjeta de presentación interactiva. Todo explicado paso a paso, sin dar nada por sabido.</p>
+      <div class="hero-actions">
+        <button class="btn primary" type="button" data-go="2">Empezar el procedimiento →</button>
+        <button class="btn" type="button" id="ix">☰ Ver índice</button>
+      </div>
+      <p>
+        <span class="pill">9 secciones</span>
+        <span class="pill">33 preguntas y respuestas</span>
+        <span class="pill">Un solo archivo HTML</span>
+        <span class="pill">Funciona sin conexión</span>
+      </p>
+    </div>
+  </div>
+
+  <h2>Qué vas a conseguir</h2>
+  <div class="grid2">
+    <div class="card"><h4>1. Un entorno de trabajo listo</h4><p>Instalarás Node.js (versión LTS), comprobarás que funciona y aprenderás a usar la terminal integrada de Visual Studio Code.</p></div>
+    <div class="card"><h4>2. Un proyecto Next.js real</h4><p>Ejecutarás <code class="kw">npx create-next-app@latest</code> y responderás con criterio a las ocho preguntas del asistente.</p></div>
+    <div class="card"><h4>3. Comprensión de la estructura</h4><p>Sabrás qué son <code class="kw">layout.tsx</code>, <code class="kw">page.tsx</code> y <code class="kw">globals.css</code>, y por qué están en <code class="kw">src/app</code>.</p></div>
+    <div class="card"><h4>4. Servidor de desarrollo</h4><p>Arrancarás el proyecto con <code class="kw">npm run dev</code>, lo verás en el navegador y sabrás detenerlo correctamente.</p></div>
+    <div class="card"><h4>5. Tu primer componente interactivo</h4><p>Crearás un componente de cliente con estado y una ruta nueva dentro del App Router.</p></div>
+    <div class="card"><h4>6. Proyecto integrador</h4><p>Construirás una «Dev Card»: una tarjeta de presentación dinámica con Tailwind CSS.</p></div>
+  </div>
+
+  <h2>Para quién es este tutorial</h2>
+  <div class="grid2">
+    <div class="card">
+      <h4>Sí es para ti si…</h4>
+      <ul>
+        <li>Nunca has creado un proyecto con React ni con Next.js.</li>
+        <li>Sabes abrir una carpeta y usar el ratón, pero no dominas la terminal.</li>
+        <li>Quieres entender qué hace cada archivo en lugar de copiar y pegar a ciegas.</li>
+        <li>Prefieres una guía corta, ordenada y verificable antes que un vídeo de tres horas.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>No es para ti si…</h4>
+      <ul>
+        <li>Buscas un curso avanzado de arquitectura de microfrontends.</li>
+        <li>Ya trabajas a diario con Next.js y su App Router.</li>
+        <li>Esperas aprender React a fondo en una sola lectura: esto es una puesta en marcha guiada.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Requisitos previos</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Un ordenador</strong> con Windows, macOS o Linux.</li>
+      <li><strong>Conexión a Internet</strong> únicamente durante la instalación: el asistente descarga dependencias.</li>
+      <li><strong>Ningún conocimiento previo de React, Next.js ni JavaScript avanzado.</strong> Sí ayuda saber qué es un archivo y una carpeta.</li>
+      <li><strong>Permisos para instalar programas</strong> en tu equipo.</li>
+    </ul>
+    <p style="margin-bottom:0"><strong>Tiempo estimado:</strong> entre 30 y 45 minutos si sigues el procedimiento sin prisa.</p>
+  </div>
+
+  <h2>Cómo usar este tutorial</h2>
+  <div class="card">
+    <ul>
+      <li><strong>Pestañas superiores:</strong> cada botón de la barra abre una sección. La sección activa queda resaltada en color azul.</li>
+      <li><strong>☰ Índice:</strong> abre un panel lateral con <em>todas</em> las secciones numeradas. Se cierra con <kbd>Esc</kbd>, pulsando fuera del panel o volviendo a pulsar el botón.</li>
+      <li><strong>Buscador:</strong> escribe dentro del panel de índice y verás en qué secciones aparece ese término.</li>
+      <li><strong>Botones COPIAR:</strong> cada bloque de comandos o de código tiene su propio botón. Copia el contenido íntegro, sin etiquetas ni explicaciones añadidas.</li>
+      <li><strong>Listas de comprobación:</strong> tus marcas se guardan en el navegador. Si cierras el archivo y lo vuelves a abrir, siguen ahí.</li>
+      <li><strong>Imprimir / PDF:</strong> genera una versión limpia en blanco y negro con todas las secciones abiertas.</li>
+    </ul>
+  </div>
+
+  <h2>Ruta de aprendizaje</h2>
+  <div class="flow">
+    <div class="box">1. Entender qué es React y Next.js</div><span class="arrow">→</span>
+    <div class="box">2. Preparar el entorno</div><span class="arrow">→</span>
+    <div class="box">3. Crear el proyecto</div><span class="arrow">→</span>
+    <div class="box">4. Entender los archivos</div><span class="arrow">→</span>
+    <div class="box">5. Arrancar el servidor</div><span class="arrow">→</span>
+    <div class="box">6. Practicar y construir la Dev Card</div>
+  </div>
+
+  <h2>Antes de empezar: comprobación rápida</h2>
+  <p>Marca estas casillas cuando las tengas resueltas. Se guardan automáticamente.</p>
+  <ul class="cklist">
+    <li><input type="checkbox" class="ck" id="ck0a" data-k="ck0a"><label for="ck0a">Tengo acceso a un ordenador donde puedo instalar programas.</label></li>
+    <li><input type="checkbox" class="ck" id="ck0b" data-k="ck0b"><label for="ck0b">Sé localizar una carpeta en mi disco (por ejemplo, «Documentos»).</label></li>
+    <li><input type="checkbox" class="ck" id="ck0c" data-k="ck0c"><label for="ck0c">Tengo conexión a Internet para la primera instalación.</label></li>
+    <li><input type="checkbox" class="ck" id="ck0d" data-k="ck0d"><label for="ck0d">Voy a leer cada paso completo antes de ejecutarlo.</label></li>
+  </ul>
+
+  <div class="note"><strong>Nota sobre las fuentes</strong> Este tutorial se basa en la guía de Rubén Sbarsky / Carlos Daniel y en la documentación oficial de Next.js, React y Node.js. Cuando se añade una aclaración que no aparece literalmente en esas fuentes, se marca expresamente como <em>nota del tutorial</em>.</div>
+</section>
+
+<!-- ================= CONCEPTOS ================= -->
+<section class="sec" id="s1" data-t="CONCEPTOS">
+  <h2>Conceptos y fundamentos teóricos</h2>
+  <p>Antes de escribir ningún comando conviene tener claro <strong>qué</strong> vas a instalar y <strong>por qué</strong>. Esta sección explica las ideas en lenguaje llano, con analogías, y sin dar por sabido nada.</p>
+
+  <h3>1. ¿Qué es React?</h3>
+  <div class="card">
+    <p><strong>React</strong> es una librería de JavaScript orientada a la creación de interfaces de usuario interactivas basadas en <strong>componentes reutilizables</strong>.</p>
+    <p>Una forma sencilla de imaginarlo: React convierte la pantalla en un conjunto de piezas independientes, como bloques de construcción. Una pieza puede ser un botón, otra una tarjeta, otra una barra de navegación. Cada pieza se escribe una vez y se puede reutilizar en cualquier parte.</p>
+    <p><strong>Pero atención:</strong> React por sí solo opera principalmente en el navegador del cliente (<em>Client-Side Rendering</em>). Eso puede complicar la optimización para motores de búsqueda (SEO) y la velocidad de carga inicial en aplicaciones complejas.</p>
+  </div>
+
+  <h3>2. ¿Qué es Next.js y por qué usarlo con React?</h3>
+  <div class="card">
+    <p><strong>Next.js</strong> es un <em>framework</em> (marco de trabajo) full-stack construido sobre React. Proporciona herramientas listas para usar:</p>
+    <ul>
+      <li>Enrutamiento automático basado en el sistema de archivos.</li>
+      <li>Optimización de imágenes y de fuentes tipográficas.</li>
+      <li>Renderizado en el servidor (<em>Server-Side Rendering</em>).</li>
+      <li>Creación de APIs de backend integradas en el mismo proyecto.</li>
+    </ul>
+    <p style="margin-bottom:0">Dicho de otro modo: React te da las piezas y Next.js te da la fábrica, el transporte y la tienda donde se muestran esas piezas.</p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Aspecto</th><th>React (librería)</th><th>Next.js (framework)</th></tr></thead>
+      <tbody>
+        <tr><td>Enrutamiento</td><td>Manual: hay que añadir una librería aparte</td><td>Basado en carpetas (App Router)</td></tr>
+        <tr><td>Renderizado</td><td>Principalmente en el cliente (CSR)</td><td>En servidor y en cliente, según el componente</td></tr>
+        <tr><td>SEO</td><td>Requiere trabajo adicional</td><td>El HTML ya llega renderizado</td></tr>
+        <tr><td>Backend / API</td><td>No lo incluye</td><td>Integrado en el mismo proyecto</td></tr>
+        <tr><td>Imágenes y fuentes</td><td>Optimización manual</td><td>Componentes y módulos dedicados</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>3. Renderizado en servidor (SSR) frente a renderizado en cliente (CSR)</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>CSR — Client-Side Rendering</h4>
+      <p>El servidor envía un archivo HTML prácticamente vacío y un paquete grande de JavaScript. El navegador descarga ese JavaScript y genera la interfaz en tiempo real.</p>
+      <p style="margin-bottom:0"><strong>Consecuencia:</strong> la carga inicial puede ralentizarse en dispositivos lentos y el contenido tarda más en ser visible para los buscadores.</p>
+    </div>
+    <div class="card">
+      <h4>SSR — Server-Side Rendering</h4>
+      <p>Next.js procesa los componentes en el servidor y envía al navegador un documento HTML ya construido con el contenido listo.</p>
+      <p style="margin-bottom:0"><strong>Consecuencia:</strong> mejora de forma notable el SEO y se reduce el tiempo de espera del usuario.</p>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="box">Petición del usuario</div><span class="arrow">→</span>
+    <div class="box">Next.js renderiza en el servidor</div><span class="arrow">→</span>
+    <div class="box">Llega HTML ya construido</div><span class="arrow">→</span>
+    <div class="box">El navegador lo pinta al instante</div>
+  </div>
+
+  <h3>4. El App Router y los React Server Components</h3>
+  <div class="card">
+    <p>A partir de la versión 13, Next.js introdujo el <strong>App Router</strong>, un paradigma basado en la carpeta <code class="kw">src/app</code>.</p>
+    <p>Todos los componentes que viven dentro del App Router son <strong>React Server Components (RSC)</strong> por defecto. Eso significa que se ejecutan exclusivamente en el servidor, sin añadir código JavaScript innecesario al navegador del cliente.</p>
+    <p style="margin-bottom:0">Cuando un componente necesita interactividad (por ejemplo, un contador que cambia al pulsar un botón), se marca con la directiva <code class="kw">'use client';</code> en su primera línea y pasa a ser un <em>Client Component</em>.</p>
+  </div>
+
+  <h3>5. Vocabulario mínimo antes de continuar</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Término</th><th>Qué significa en la práctica</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Componente</strong></td><td>Un bloque de código reutilizable que devuelve elementos de interfaz. En Next.js suele ser un archivo con una función que devuelve marcado.</td></tr>
+        <tr><td><strong>JSX / TSX</strong></td><td>La sintaxis que mezcla JavaScript (o TypeScript) con etiquetas parecidas a HTML. La extensión <code class="kw">.tsx</code> indica que el archivo usa TypeScript y JSX a la vez.</td></tr>
+        <tr><td><strong>Ruta</strong></td><td>Una dirección dentro de tu web, por ejemplo <code class="kw">/acerca-de</code>. En el App Router, cada carpeta con un archivo <code class="kw">page.tsx</code> crea una ruta.</td></tr>
+        <tr><td><strong>Layout</strong></td><td>Plantilla envolvente compartida entre varias páginas. No se vuelve a renderizar al cambiar de ruta.</td></tr>
+        <tr><td><strong>Page</strong></td><td>El archivo que representa el contenido propio de una ruta concreta.</td></tr>
+        <tr><td><strong>Alias de importación</strong></td><td>Atajo como <code class="kw">@/</code> que apunta a la carpeta <code class="kw">src/</code> para no escribir rutas relativas largas.</td></tr>
+        <tr><td><strong>TypeScript</strong></td><td>JavaScript con tipado estático opcional: detecta errores antes de ejecutar la aplicación.</td></tr>
+        <tr><td><strong>ESLint</strong></td><td>Herramienta que revisa el código en busca de errores de sintaxis y asegura el cumplimiento de estándares.</td></tr>
+        <tr><td><strong>Tailwind CSS</strong></td><td>Framework de diseño basado en clases de utilidad que facilita crear interfaces estéticas y responsivas rápidamente.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>6. Las herramientas que vas a instalar</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>Node.js</h4>
+      <p>Entorno de ejecución de JavaScript fuera del navegador. Es la base sobre la que funcionan todas las herramientas de construcción de Next.js.</p>
+    </div>
+    <div class="card">
+      <h4>npm</h4>
+      <p><em>Node Package Manager</em>. El gestor de paquetes estándar de JavaScript: descarga, actualiza y administra las librerías del proyecto. Se instala junto con Node.js.</p>
+    </div>
+    <div class="card">
+      <h4>npx</h4>
+      <p>Herramienta integrada con npm que permite ejecutar paquetes directamente, sin necesidad de instalarlos de forma global en el equipo.</p>
+    </div>
+    <div class="card">
+      <h4>Visual Studio Code</h4>
+      <p>Editor de texto y entorno de desarrollo integrado (IDE) recomendado por la comunidad. Incluye una terminal integrada que usarás constantemente.</p>
+    </div>
+  </div>
+
+  <div class="tip"><strong>Resumen de la sección</strong> React pone las piezas; Next.js pone la estructura, el enrutamiento y el renderizado en servidor; Node.js y npm son el motor que permite instalar y ejecutar todo lo anterior.</div>
+</section>
+
+<!-- ================= PROCEDIMIENTO ================= -->
+<section class="sec" id="s2" data-t="PROCEDIMIENTO">
+  <h2>Procedimiento paso a paso</h2>
+  <p>Vas a pasar de un ordenador sin preparar a un proyecto Next.js funcionando en tu navegador. Sigue los pasos <strong>en orden</strong> y no avances hasta ver el resultado esperado.</p>
+
+  <h3>Fase A · Preparar el entorno</h3>
+
+  <div class="step" data-n="1">
+    <h3>Descargar e instalar Node.js (versión LTS)</h3>
+    <p><span class="lbl">Objetivo</span> Tener el motor que ejecuta las herramientas de JavaScript.</p>
+    <p><span class="lbl">Por qué</span> Sin Node.js, ni npm ni Next.js pueden funcionar. La versión <strong>LTS</strong> (<em>Long Term Support</em> / soporte a largo plazo) ofrece la máxima estabilidad para el desarrollo de proyectos.</p>
+    <p><span class="lbl">Pasos</span></p>
+    <ol>
+      <li>Entra en el sitio web oficial de Node.js.</li>
+      <li>Descarga la versión marcada como <strong>LTS</strong>.</li>
+      <li>Ejecuta el instalador aceptando las opciones predeterminadas (<em>Next &gt; Next &gt; Install</em>).</li>
+    </ol>
+    <p><span class="lbl">Resultado esperado</span> El instalador termina sin errores y aparece un mensaje de instalación completada.</p>
+    <p><span class="lbl">Si algo falla</span> Cierra el instalador, reinicia el equipo y vuelve a intentarlo con la versión LTS.</p>
+  </div>
+
+  <div class="step" data-n="2">
+    <h3>Comprobar que Node.js y npm están instalados</h3>
+    <p><span class="lbl">Objetivo</span> Verificar la instalación antes de continuar.</p>
+    <p><span class="lbl">Por qué</span> Es mejor descubrir ahora un problema que tres pasos más adelante, cuando el error resulte confuso.</p>
+    <p><span class="lbl">Pasos</span> Abre tu consola de comandos (o la terminal de VS Code) y escribe estos dos comandos, uno detrás de otro:</p>
+    <div class="code">
+      <div class="code-h"><span class="lang">Terminal</span><button class="copy" type="button">Copiar</button></div>
+      <pre><code>node -v
+npm -v</code></pre>
+    </div>
+    <p><span class="lbl">Resultado esperado</span> Cada comando devuelve un número de versión, por ejemplo <code class="kw">v22.11.0</code> y <code class="kw">10.9.0</code>. Los números concretos pueden variar.</p>
+    <p><span class="lbl">Si algo falla</span> Si aparece <em>«'node' no se reconoce como un comando»</em>, la instalación no se completó o no se añadieron las variables de entorno. Consulta la sección ERRORES.</p>
+  </div>
+
+  <div class="step" data-n="3">
+    <h3>Instalar y abrir Visual Studio Code</h3>
+    <p><span class="lbl">Objetivo</span> Trabajar con un editor que incluye terminal integrada.</p>
+    <p><span class="lbl">Por qué</span> Vas a alternar constantemente entre escribir comandos y ver archivos. Tenerlo todo en una sola ventana reduce errores.</p>
+    <p><span class="lbl">Pasos</span></p>
+    <ol>
+      <li>Descarga Visual Studio Code desde su sitio web oficial (es gratuito).</li>
+      <li>Instálalo con las opciones predeterminadas.</li>
+      <li>Ábrelo.</li>
+    </ol>
+    <p><span class="lbl">Resultado esperado</span> Ves la pantalla de bienvenida del editor.</p>
+  </div>
+
+  <div class="step" data-n="4">
+    <h3>Abrir la terminal integrada</h3>
+    <p><span class="lbl">Objetivo</span> Disponer de una línea de comandos dentro del propio editor.</p>
+    <p><span class="lbl">Por qué</span> Todos los comandos de esta guía se ejecutan desde ahí, y así la terminal siempre apunta a la carpeta correcta.</p>
+    <p><span class="lbl">Pasos</span></p>
+    <ol>
+      <li>En la barra de menú superior, haz clic en <strong>Terminal</strong>.</li>
+      <li>Selecciona <strong>Nueva terminal</strong>.</li>
+    </ol>
+    <p><span class="lbl">Resultado esperado</span> Se abre un panel inferior donde puedes escribir comandos.</p>
+    <p><span class="lbl">Si algo falla</span> También puedes usar el atajo <kbd>Ctrl</kbd> + <kbd>ñ</kbd> (o <kbd>Ctrl</kbd> + <kbd>`</kbd> según la distribución del teclado).</p>
+  </div>
+
+  <div class="step" data-n="5">
+    <h3>Situar la terminal en tu carpeta de proyectos</h3>
+    <p><span class="lbl">Objetivo</span> Indicar <em>dónde</em> se va a crear el proyecto.</p>
+    <p><span class="lbl">Por qué</span> El comando de creación genera una carpeta nueva dentro del directorio actual. Si estás en un lugar inesperado, el proyecto aparecerá donde no lo esperas.</p>
+    <p><span class="lbl">Pasos</span> Usa el comando <code class="kw">cd</code> (<em>Change Directory</em>, cambiar de directorio) con la ruta de tu carpeta:</p>
+    <div class="code">
+      <div class="code-h"><span class="lang">Terminal</span><button class="copy" type="button">Copiar</button></div>
+      <pre><code>cd C:/Ruta/De/Tu/Carpeta</code></pre>
+    </div>
+    <p>Reemplaza la ruta por la carpeta de tu computadora donde prefieras alojar tus proyectos, como <em>Documentos</em> o <em>Proyectos</em>.</p>
+    <p><span class="lbl">Resultado esperado</span> El indicador de la terminal cambia y muestra la ruta nueva.</p>
+    <p><span class="lbl">Si algo falla</span> Si la ruta contiene espacios, escríbela entre comillas: <code class="kw">cd "C:/Mis Proyectos"</code>.</p>
+  </div>
+
+  <h3>Fase B · Crear el proyecto</h3>
+
+  <div class="step" data-n="6">
+    <h3>Ejecutar el asistente de creación</h3>
+    <p><span class="lbl">Objetivo</span> Generar la estructura completa de una aplicación Next.js.</p>
+    <p><span class="lbl">Por qué</span> El asistente descarga la plantilla oficial, crea las carpetas y configura TypeScript, ESLint y Tailwind por ti.</p>
+    <p><span class="lbl">Pasos</span> Con la terminal situada en la carpeta deseada, ejecuta exactamente:</p>
+    <div class="code">
+      <div class="code-h"><span class="lang">Terminal</span><button class="copy" type="button">Copiar</button></div>
+      <pre><code>npx create-next-app@latest</code></pre>
+    </div>
+    <p><span class="lbl">Resultado esperado</span> Aparece un asistente con varias preguntas en la terminal.</p>
+    <p><span class="lbl">Si algo falla</span> Comprueba que estás conectado a Internet y que escribiste el comando sin erratas.</p>
+  </div>
+
+  <div class="step" data-n="7">
+    <h3>Responder a las ocho preguntas del asistente</h3>
+    <p><span class="lbl">Objetivo</span> Configurar el proyecto con las opciones recomendadas.</p>
+    <p><span class="lbl">Por qué</span> Cada respuesta cambia archivos y dependencias del proyecto. Elegir bien al principio evita rehacer trabajo.</p>
+    <p><span class="lbl">Pasos</span> Responde así (usa las flechas del teclado y <kbd>Enter</kbd>):</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>#</th><th>Pregunta del asistente</th><th>Respuesta</th><th>Por qué</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><em>What is your project named?</em><br>(¿Cuál es el nombre de tu proyecto?)</td><td><code class="kw">mi app</code></td><td>Crea el directorio raíz donde se guardarán todos los archivos.</td></tr>
+          <tr><td>2</td><td><em>Would you like to use TypeScript?</em></td><td><strong>Sí</strong></td><td>Añade tipado estático y permite detectar errores antes de ejecutar la aplicación.</td></tr>
+          <tr><td>3</td><td><em>Would you like to use ESLint?</em></td><td><strong>Sí</strong></td><td>Analiza el código en busca de errores de sintaxis y asegura el cumplimiento de estándares.</td></tr>
+          <tr><td>4</td><td><em>Would you like to use Tailwind CSS?</em></td><td><strong>Sí</strong></td><td>Framework de diseño basado en clases de utilidad: interfaces estéticas y responsivas con rapidez.</td></tr>
+          <tr><td>5</td><td><em>Would you like to use <code class="kw">src/</code> directory?</em></td><td><strong>Sí</strong></td><td>Agrupa el código fuente en <code class="kw">src</code> y mantiene la raíz limpia de archivos de configuración.</td></tr>
+          <tr><td>6</td><td><em>Would you like to use App Router? (recommended)</em></td><td><strong>Sí</strong></td><td>Es la arquitectura moderna de Next.js para gestionar páginas mediante carpetas y archivos con convenciones como <code class="kw">layout.tsx</code> y <code class="kw">page.tsx</code>.</td></tr>
+          <tr><td>7</td><td><em>Would you like to use Turbo pack for <code class="kw">next dev</code>?</em></td><td><strong>No</strong></td><td>Desactiva este empaquetador experimental en la configuración inicial para garantizar máxima estabilidad.</td></tr>
+          <tr><td>8</td><td><em>Would you like to customize the default import alias (<code class="kw">@/*</code>)?</em></td><td><strong>No</strong></td><td>Mantiene el alias por defecto (<code class="kw">@/</code>) para importar componentes sin rutas relativas complejas.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warnbox"><strong>Nota del tutorial sobre el nombre del proyecto</strong> Los nombres de paquete de npm <strong>no admiten espacios</strong>, por lo que muchos entornos rechazan <code class="kw">mi app</code> con un mensaje del tipo <em>«Could not create a project called "mi app" because of npm naming restrictions»</em>. Si te ocurre, escribe <code class="kw">mi-app</code> o <code class="kw">mi_app</code>. La guía original ya sugiere usar un nombre «en minúsculas y sin espacios».</div>
+  </div>
+
+  <div class="step" data-n="8">
+    <h3>Esperar la descarga de dependencias</h3>
+    <p><span class="lbl">Objetivo</span> Dejar que el asistente instale todo lo necesario.</p>
+    <p><span class="lbl">Por qué</span> Al terminar las preguntas, el asistente descarga e instala automáticamente todas las dependencias necesarias.</p>
+    <p><span class="lbl">Resultado esperado</span> Ves mensajes de progreso y, al final, instrucciones para entrar en la carpeta y arrancar el proyecto.</p>
+    <p><span class="lbl">Si algo falla</span> No cierres la terminal a mitad del proceso: una instalación interrumpida deja el proyecto a medias.</p>
+  </div>
+
+  <div class="step" data-n="9">
+    <h3>Abrir el proyecto en Visual Studio Code</h3>
+    <p><span class="lbl">Objetivo</span> Ver la estructura de archivos generada.</p>
+    <p><span class="lbl">Pasos</span> En el menú, elige <strong>Archivo &gt; Abrir carpeta…</strong> y selecciona la carpeta que acaba de crear el asistente.</p>
+    <p><span class="lbl">Resultado esperado</span> En el panel izquierdo aparece el árbol de archivos del proyecto.</p>
+  </div>
+
+  <h3>Fase C · Entender lo que acabas de crear</h3>
+
+  <p>Esta es la estructura principal, organizada tal como la describe la guía:</p>
+  <div class="code">
+    <div class="code-h"><span class="lang">Estructura del proyecto</span><button class="copy" type="button">Copiar</button></div>
+    <pre><code>mi app/
+├── node_modules/          Librerías y paquetes descargados por npm
+├── public/                Archivos estáticos públicos (imágenes, favicons)
+├── src/                   Carpeta principal de código fuente
+│   └── app/               Sistema App Router de Next.js
+│       ├── globals.css    Estilos CSS globales (incluyendo Tailwind)
+│       ├── layout.tsx     Contenedor global y maquetación base
+│       └── page.tsx       Contenido visual de la página de inicio
+├── .eslintrc.json         Reglas de ESLint
+├── next.config.ts         Configuración propia de Next.js
+├── package.json           Dependencias y scripts del proyecto
+├── package-lock.json      Árbol exacto de dependencias instaladas
+├── tailwind.config.ts     Configuración de Tailwind CSS
+└── tsconfig.json          Ajustes del compilador de TypeScript</code></pre>
+  </div>
+
+  <div class="note"><strong>Nota del tutorial</strong> El nombre exacto de algunos archivos de configuración puede variar según la versión de Next.js instalada. Por ejemplo, en versiones recientes la configuración de ESLint puede aparecer como <code class="kw">eslint.config.mjs</code>. Lo que no cambia es su función.</div>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Elemento</th><th>Qué es y para qué sirve</th></tr></thead>
+      <tbody>
+        <tr><td><code class="kw">node_modules/</code></td><td>Librerías y paquetes descargados por npm. No se edita a mano y no se comparte por correo.</td></tr>
+        <tr><td><code class="kw">public/</code></td><td>Archivos estáticos públicos: imágenes, favicons y similares.</td></tr>
+        <tr><td><code class="kw">src/app/layout.tsx</code></td><td>Define el diseño base envolvente de toda la aplicación: fuentes globales, metadatos (título y descripción del sitio) y elementos comunes como cabeceras o pies de página.</td></tr>
+        <tr><td><code class="kw">src/app/page.tsx</code></td><td>Representa el contenido visual directo que se muestra al acceder a la ruta raíz (<code class="kw">localhost:3000</code>). Por defecto incluye la plantilla de bienvenida de Next.js con el logotipo, enlaces a la documentación oficial y accesos directos de despliegue.</td></tr>
+        <tr><td><code class="kw">src/app/globals.css</code></td><td>Estilos CSS globales, incluyendo las directivas de Tailwind.</td></tr>
+        <tr><td><code class="kw">package.json</code></td><td>Metadatos del proyecto, scripts ejecutables y lista de dependencias.</td></tr>
+        <tr><td><code class="kw">tsconfig.json</code></td><td>Ajustes del compilador de TypeScript, incluido el alias <code class="kw">@/*</code>.</td></tr>
+        <tr><td><code class="kw">tailwind.config.ts</code></td><td>Configuración de Tailwind CSS.</td></tr>
+        <tr><td><code class="kw">next.config.ts</code></td><td>Configuración propia de Next.js.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Fase D · Arrancar y detener el servidor</h3>
+
+  <div class="step" data-n="10">
+    <h3>Arrancar el servidor de desarrollo</h3>
+    <p><span class="lbl">Objetivo</span> Ver tu aplicación funcionando en el navegador.</p>
+    <p><span class="lbl">Por qué</span> El servidor de desarrollo compila el proyecto y lo sirve en tu equipo, actualizándose automáticamente al guardar cambios.</p>
+    <p><span class="lbl">Pasos</span> En la terminal integrada, dentro de la carpeta del proyecto, escribe:</p>
+    <div class="code">
+      <div class="code-h"><span class="lang">Terminal</span><button class="copy" type="button">Copiar</button></div>
+      <pre><code>npm run dev</code></pre>
+    </div>
+    <p><span class="lbl">Resultado esperado</span> La consola muestra la dirección web local, generalmente <code class="kw">http://localhost:3000</code>.</p>
+  </div>
+
+  <div class="step" data-n="11">
+    <h3>Abrir la vista previa en el navegador</h3>
+    <p><span class="lbl">Pasos</span> Mantén presionada la tecla <kbd>Ctrl</kbd> (o <kbd>Cmd</kbd> en macOS) y haz clic sobre la URL de la terminal. También puedes copiar la dirección y pegarla en tu navegador.</p>
+    <p><span class="lbl">Resultado esperado</span> Verás la pantalla inicial generada por Next.js, con su logotipo y enlaces a la documentación.</p>
+    <p><span class="lbl">Si algo falla</span> Si la página no carga, revisa que el servidor siga en marcha en la terminal.</p>
+  </div>
+
+  <div class="step" data-n="12">
+    <h3>Detener el servidor correctamente</h3>
+    <p><span class="lbl">Objetivo</span> Liberar el puerto y la consola.</p>
+    <p><span class="lbl">Pasos</span> Regresa a la terminal y presiona <kbd>Ctrl</kbd> + <kbd>C</kbd>.</p>
+    <p><span class="lbl">Resultado esperado</span> El proceso se detiene y vuelve a aparecer el indicador de la terminal.</p>
+    <p><span class="lbl">Si algo falla</span> Cierra la pestaña del navegador con <code class="kw">localhost:3000</code>: el servidor seguirá apagado aunque la pestaña quede abierta.</p>
+  </div>
+
+  <div class="okbox"><strong>Punto de control</strong> Si has llegado hasta aquí, ya tienes un proyecto Next.js creado, entendido y ejecutándose en local. El siguiente paso es modificarlo con tus propias manos.</div>
+</section>
+
+<!-- ================= PRÁCTICA ================= -->
+<section class="sec" id="s3" data-t="PRÁCTICA">
+  <h2>Desarrollo práctico, buenas prácticas y proyecto integrador</h2>
+  <p>Aquí pasas de observar a construir. Harás tres ejercicios progresivos y terminarás con una tarjeta de presentación interactiva.</p>
+
+  <h3>Ejercicio 1 · Tu primer componente interactivo</h3>
+  <div class="card">
+    <p><strong>Objetivo:</strong> crear un componente que reaccione a un clic del usuario.</p>
+    <p><strong>Idea clave:</strong> en el App Router, los componentes son de servidor por defecto. Para usar estado (<code class="kw">useState</code>) y eventos, el archivo debe empezar con la directiva <code class="kw">'use client';</code>.</p>
+    <p><strong>Pasos:</strong></p>
+    <ol>
+      <li>Dentro de <code class="kw">src/app/</code>, crea un archivo nuevo llamado <code class="kw">BotonLike.tsx</code>.</li>
+      <li>Copia el siguiente contenido completo.</li>
+      <li>Guarda el archivo con <kbd>Ctrl</kbd> + <kbd>S</kbd>.</li>
+    </ol>
+  </div>
+  <div class="code">
+    <div class="code-h"><span class="lang">src/app/BotonLike.tsx</span><button class="copy" type="button">Copiar</button></div>
+    <pre><code>'use client';
+
+import { useState } from 'react';
+
+export default function BotonLike() {
+  const [likes, setLikes] = useState(0);
+
+  return (
+    &lt;button
+      onClick={() =&gt; setLikes(likes + 1)}
+      className="rounded-xl bg-cyan-500 px-5 py-3 font-semibold text-slate-950 hover:bg-cyan-400 transition"
+    &gt;
+      Me gusta ({likes})
+    &lt;/button&gt;
+  );
+}</code></pre>
+  </div>
+  <div class="card">
+    <p><strong>Qué hace cada pieza:</strong></p>
+    <ul>
+      <li><code class="kw">'use client';</code> marca el componente como componente de cliente, habilitando interactividad.</li>
+      <li><code class="kw">useState(0)</code> crea una variable de estado <code class="kw">likes</code> que empieza en cero, junto con su función de actualización <code class="kw">setLikes</code>.</li>
+      <li><code class="kw">onClick</code> ejecuta la función cuando se pulsa el botón y suma uno al contador.</li>
+      <li>Las clases <code class="kw">className</code> son utilidades de Tailwind CSS.</li>
+    </ul>
+    <p style="margin-bottom:0"><strong>Resultado esperado:</strong> al pulsar el botón, el número entre paréntesis aumenta sin recargar la página.</p>
+  </div>
+
+  <h3>Ejercicio 2 · Crear una ruta nueva</h3>
+  <div class="card">
+    <p><strong>Objetivo:</strong> añadir la página <code class="kw">/acerca-de</code>.</p>
+    <p><strong>Regla del App Router:</strong> cada carpeta dentro de <code class="kw">src/app/</code> que contenga un archivo <code class="kw">page.tsx</code> se convierte automáticamente en una ruta.</p>
+    <p><strong>Pasos:</strong></p>
+    <ol>
+      <li>Crea la carpeta <code class="kw">src/app/acerca-de/</code>.</li>
+      <li>Dentro, crea el archivo <code class="kw">page.tsx</code>.</li>
+      <li>Copia el contenido y guarda.</li>
+      <li>Visita <code class="kw">http://localhost:3000/acerca-de</code> en el navegador.</li>
+    </ol>
+  </div>
+  <div class="code">
+    <div class="code-h"><span class="lang">src/app/acerca-de/page.tsx</span><button class="copy" type="button">Copiar</button></div>
+    <pre><code>export default function AcercaDe() {
+  return (
+    &lt;main className="flex min-h-screen flex-col items-center justify-center bg-slate-900 p-6 text-white"&gt;
+      &lt;h1 className="text-3xl font-bold text-cyan-400"&gt;Acerca de&lt;/h1&gt;
+      &lt;p className="mt-3 text-slate-300"&gt;Esta página vive en /acerca-de.&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+  </div>
+  <div class="tip"><strong>Detalle importante</strong> No necesitas tocar ningún archivo de configuración de rutas. Crear la carpeta y el archivo es suficiente.</div>
+
+  <h3>Ejercicio 3 · Proyecto integrador: la «Dev Card»</h3>
+  <div class="card">
+    <p><strong>Objetivo:</strong> reemplazar la página de bienvenida por una tarjeta de presentación dinámica.</p>
+    <p><strong>Pasos:</strong></p>
+    <ol>
+      <li>Abre <code class="kw">src/app/page.tsx</code>.</li>
+      <li>Borra todo su contenido por defecto.</li>
+      <li>Sustitúyelo por el siguiente ejemplo funcional e interactivo.</li>
+      <li>Guarda el archivo con <kbd>Ctrl</kbd> + <kbd>S</kbd>.</li>
+    </ol>
+  </div>
+  <div class="code">
+    <div class="code-h"><span class="lang">src/app/page.tsx</span><button class="copy" type="button">Copiar</button></div>
+    <pre><code>import React from 'react';
+
+export default function HomePage() {
+  return (
+    &lt;main className="flex min-h-screen flex-col items-center justify-center bg-slate-900 text-white p-6"&gt;
+      &lt;div className="max-w-md w-full bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-700 text-center"&gt;
+        &lt;h1 className="text-3xl font-bold text-cyan-400 mb-2"&gt;¡Mi Proyecto React &amp; Next.js!&lt;/h1&gt;
+        &lt;p className="text-slate-300 mb-6"&gt;
+          Guía rápida completada con éxito. Mi primer desarrollo con App Router, TypeScript y Tailwind CSS.
+        &lt;/p&gt;
+        &lt;a
+          href="https://nextjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-semibold px-6 py-3 rounded-xl transition-all duration-200 shadow-lg"
+        &gt;
+          Explorar Documentación Oficial
+        &lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+  </div>
+  <div class="card">
+    <p><strong>Qué observar:</strong> al guardar el archivo, el navegador se actualizará automáticamente gracias a la recarga rápida (<em>Fast Refresh</em>). No hace falta detener y volver a arrancar el servidor.</p>
+    <p style="margin-bottom:0"><strong>Resultado esperado:</strong> una tarjeta centrada, con borde, sombra, título en cian y un botón que abre la documentación oficial en una pestaña nueva.</p>
+  </div>
+
+  <h3>Buenas prácticas de arquitectura y código limpio</h3>
+  <div class="grid2">
+    <div class="card"><h4>Nombres que revelan la intención</h4><p>Si necesitas un comentario para explicar qué hace una variable, el nombre ha fallado. Prefiere <code class="kw">elapsedTimeInDays</code> a <code class="kw">d</code>.</p></div>
+    <div class="card"><h4>Funciones pequeñas</h4><p>Una función debe hacer una sola cosa, hacerla bien y que sea lo único que haga. Menos de veinte líneas es una buena referencia.</p></div>
+    <div class="card"><h4>Un componente, una responsabilidad</h4><p>Si no puedes describir un componente sin usar «y», probablemente haya que dividirlo.</p></div>
+    <div class="card"><h4>Elimina duplicados</h4><p>Si copias y pegas el mismo bloque tres veces, extráelo a un componente reutilizable.</p></div>
+    <div class="card"><h4>Sin código comentado</h4><p>El historial de Git conserva lo que borras. El código comentado solo confunde y envejece mal.</p></div>
+    <div class="card"><h4>Regla del Boy Scout</h4><p>Deja el código un poco más limpio de lo que lo encontraste, aunque solo añadas una línea.</p></div>
+  </div>
+
+  <h3>Ejercicios propuestos con solución</h3>
+
+  <details>
+    <summary>Ejercicio A · Añade una segunda ruta llamada /contacto</summary>
+    <div class="dbody">
+      <p><strong>Solución:</strong> crea la carpeta <code class="kw">src/app/contacto/</code> y dentro un archivo <code class="kw">page.tsx</code>:</p>
+      <div class="code">
+        <div class="code-h"><span class="lang">src/app/contacto/page.tsx</span><button class="copy" type="button">Copiar</button></div>
+        <pre><code>export default function Contacto() {
+  return (
+    &lt;main className="p-8"&gt;
+      &lt;h1 className="text-2xl font-bold text-cyan-400"&gt;Contacto&lt;/h1&gt;
+      &lt;p className="mt-2 text-slate-300"&gt;Escríbeme en /contacto.&lt;/p&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+      </div>
+      <p>Visita <code class="kw">http://localhost:3000/contacto</code>. Si ves la página, la ruta está creada correctamente.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Ejercicio B · Muestra el componente BotonLike dentro de la página principal</summary>
+    <div class="dbody">
+      <p><strong>Solución:</strong> importa el componente y colócalo dentro del JSX de <code class="kw">page.tsx</code>:</p>
+      <div class="code">
+        <div class="code-h"><span class="lang">src/app/page.tsx</span><button class="copy" type="button">Copiar</button></div>
+        <pre><code>import React from 'react';
+import BotonLike from './BotonLike';
+
+export default function HomePage() {
+  return (
+    &lt;main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-slate-900 p-6 text-white"&gt;
+      &lt;h1 className="text-2xl font-bold text-cyan-400"&gt;Mi Dev Card&lt;/h1&gt;
+      &lt;BotonLike /&gt;
+    &lt;/main&gt;
+  );
+}</code></pre>
+      </div>
+      <p><strong>Importante:</strong> la ruta de importación empieza por <code class="kw">./</code> porque el archivo está en la misma carpeta. Con el alias por defecto también podría escribirse <code class="kw">@/app/BotonLike</code>.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Ejercicio C · Cambia los colores de la Dev Card</summary>
+    <div class="dbody">
+      <p><strong>Solución:</strong> sustituye las clases de Tailwind por otras. Por ejemplo, cambia <code class="kw">bg-slate-800</code> por <code class="kw">bg-indigo-950</code> y <code class="kw">text-cyan-400</code> por <code class="kw">text-emerald-400</code>.</p>
+      <p>Tailwind aplica las clases que escribes en el atributo <code class="kw">className</code>. Al guardar, el cambio aparece al instante en el navegador.</p>
+    </div>
+  </details>
+
+  <h3>Lista de comprobación de la práctica</h3>
+  <ul class="cklist">
+    <li><input type="checkbox" class="ck" id="ck3a" data-k="ck3a"><label for="ck3a">He creado el componente <code class="kw">BotonLike.tsx</code> y el contador sube al pulsarlo.</label></li>
+    <li><input type="checkbox" class="ck" id="ck3b" data-k="ck3b"><label for="ck3b">He creado la ruta <code class="kw">/acerca-de</code> y se abre sin errores.</label></li>
+    <li><input type="checkbox" class="ck" id="ck3c" data-k="ck3c"><label for="ck3c">He sustituido <code class="kw">page.tsx</code> por la Dev Card y se ve correctamente.</label></li>
+    <li><input type="checkbox" class="ck" id="ck3d" data-k="ck3d"><label for="ck3d">Entiendo qué significa <code class="kw">'use client';</code> y por qué lo he necesitado.</label></li>
+    <li><input type="checkbox" class="ck" id="ck3e" data-k="ck3e"><label for="ck3e">No he borrado ni renombrado <code class="kw">layout.tsx</code>.</label></li>
+  </ul>
+</section>
+
+<!-- ================= 33 PREGUNTAS ================= -->
+<section class="sec" id="s4" data-t="33 Preguntas (Q&amp;A)">
+  <h2>33 preguntas y respuestas</h2>
+  <p>Divididas en tres niveles: básico, avanzado y PRO. Pulsa cada pregunta para desplegar la respuesta.</p>
+
+  <h3>Nivel básico (11 preguntas)</h3>
+
+  <details><summary>1. ¿Qué es React y para qué sirve?</summary><div class="dbody"><p>React es una librería de JavaScript orientada a la creación de interfaces de usuario interactivas y reutilizables mediante componentes. Sirve para construir pantallas a partir de piezas independientes que se pueden reutilizar en cualquier parte de la aplicación.</p></div></details>
+
+  <details><summary>2. ¿Qué es Next.js y en qué se diferencia de React?</summary><div class="dbody"><p>Next.js es un framework sobre React que ofrece características listas para producción como renderizado en servidor, enrutamiento por carpetas y optimizaciones automáticas. React es la librería de componentes; Next.js es el marco completo que la rodea.</p></div></details>
+
+  <details><summary>3. ¿Por qué es necesario instalar Node.js antes de usar Next.js?</summary><div class="dbody"><p>Node.js proporciona el entorno para ejecutar las herramientas de construcción de JavaScript y gestionar los paquetes de dependencias requeridos por la aplicación.</p></div></details>
+
+  <details><summary>4. ¿Qué es npm y qué función cumple?</summary><div class="dbody"><p>npm es el gestor de paquetes por defecto de Node.js, encargado de descargar, actualizar y administrar las librerías del proyecto.</p></div></details>
+
+  <details><summary>5. ¿Qué diferencia hay entre <code class="kw">npm</code> y <code class="kw">npx</code>?</summary><div class="dbody"><p><code class="kw">npm</code> sirve para instalar paquetes en el proyecto o en el equipo, mientras que <code class="kw">npx</code> ejecuta un paquete o herramienta directamente sin obligar a su instalación permanente.</p></div></details>
+
+  <details><summary>6. ¿Qué comando se usa para iniciar el asistente de creación de Next.js?</summary><div class="dbody"><p>El comando oficial es <code class="kw">npx create-next-app@latest</code>.</p></div></details>
+
+  <details><summary>7. ¿Para qué se utiliza el comando <code class="kw">cd</code> en la terminal?</summary><div class="dbody"><p><code class="kw">cd</code> (<em>Change Directory</em>) permite navegar entre diferentes carpetas desde la línea de comandos, es decir, cambiar el directorio de trabajo actual.</p></div></details>
+
+  <details><summary>8. ¿Qué comando arranca el servidor local de desarrollo?</summary><div class="dbody"><p>El comando es <code class="kw">npm run dev</code>.</p></div></details>
+
+  <details><summary>9. ¿Cómo se abre la vista previa en el navegador desde la terminal de VS Code?</summary><div class="dbody"><p>Presionando la tecla <kbd>Control</kbd> (o <kbd>Cmd</kbd>) y haciendo clic directo sobre el enlace URL emitido por la terminal (<code class="kw">localhost:3000</code>). También se puede copiar la dirección y pegarla en el navegador.</p></div></details>
+
+  <details><summary>10. ¿Cómo se detiene la ejecución del servidor de desarrollo local?</summary><div class="dbody"><p>Mediante la combinación de teclas <kbd>Control</kbd> + <kbd>C</kbd> en la terminal.</p></div></details>
+
+  <details><summary>11. ¿Qué función cumple el archivo <code class="kw">src/app/page.tsx</code>?</summary><div class="dbody"><p>Es el componente que representa visualmente el contenido de la página inicial o raíz de la aplicación.</p></div></details>
+
+  <h3>Nivel avanzado (11 preguntas)</h3>
+
+  <details><summary>12. ¿Qué ventaja ofrece seleccionar TypeScript durante la instalación?</summary><div class="dbody"><p>Proporciona detección de errores de tipos en tiempo de compilación, mejorando el autocompletado y la robustez del código.</p></div></details>
+
+  <details><summary>13. ¿Para qué sirve Tailwind CSS en un proyecto de Next.js?</summary><div class="dbody"><p>Permite diseñar la interfaz de forma rápida aplicando clases utilitarias directamente dentro de las etiquetas TSX, sin escribir CSS extenso manualmente.</p></div></details>
+
+  <details><summary>14. ¿Qué es y para qué se usa ESLint?</summary><div class="dbody"><p>Es una herramienta de linter que analiza el código en busca de errores potenciales y hace cumplir convenciones de estilo de código.</p></div></details>
+
+  <details><summary>15. ¿Qué significa la opción de colocar el código en una carpeta <code class="kw">src</code>?</summary><div class="dbody"><p>Permite separar el código fuente del proyecto de los archivos de configuración en la raíz, logrando una estructura organizada.</p></div></details>
+
+  <details><summary>16. ¿Qué es el App Router de Next.js?</summary><div class="dbody"><p>Es el sistema moderno de enrutamiento basado en archivos e impulsado por React Server Components, introducido a partir de Next.js 13.</p></div></details>
+
+  <details><summary>17. ¿Para qué sirve el archivo <code class="kw">src/app/layout.tsx</code>?</summary><div class="dbody"><p>Define la plantilla global y persistente (HTML base, body, fuentes y metadatos) que envuelve a todas las páginas de la aplicación.</p></div></details>
+
+  <details><summary>18. ¿Qué sucede si respondes «No» a la opción de Turbo pack en el asistente?</summary><div class="dbody"><p>Se utiliza el empaquetador estándar (Webpack) para el servidor de desarrollo, garantizando máxima estabilidad probada.</p></div></details>
+
+  <details><summary>19. ¿Qué son los alias de importación (<code class="kw">@/*</code>)?</summary><div class="dbody"><p>Son atajos configurados en TypeScript para importar módulos desde la raíz <code class="kw">src/</code> sin usar rutas relativas largas como <code class="kw">../../components</code>.</p></div></details>
+
+  <details><summary>20. ¿Qué significa que un archivo tenga la extensión <code class="kw">.tsx</code>?</summary><div class="dbody"><p>Indica que el archivo contiene sintaxis de React (JSX) combinada con comprobaciones de tipo de TypeScript.</p></div></details>
+
+  <details><summary>21. ¿Qué es el Hot Module Replacement (HMR) o Fast Refresh?</summary><div class="dbody"><p>Es la característica que actualiza los cambios de código instantáneamente en el navegador sin perder el estado del componente ni requerir recargar la página manualmente.</p></div></details>
+
+  <details><summary>22. ¿Dónde se almacenan las dependencias descargadas por npm?</summary><div class="dbody"><p>Se guardan en el directorio <code class="kw">node_modules/</code>, dentro de la raíz del proyecto.</p></div></details>
+
+  <h3>Nivel PRO (11 preguntas)</h3>
+
+  <details><summary>23. ¿Qué diferencia a los React Server Components (RSC) de los Client Components?</summary><div class="dbody"><p>Los RSC se ejecutan y renderizan exclusivamente en el servidor, reduciendo el tamaño del paquete JavaScript del cliente, mientras que los Client Components se ejecutan en el navegador e incorporan interactividad (<code class="kw">useState</code>, <code class="kw">useEffect</code>).</p></div></details>
+
+  <details><summary>24. ¿Cómo se convierte un componente de servidor en un componente de cliente en Next.js?</summary><div class="dbody"><p>Añadiendo la directiva <code class="kw">'use client';</code> en la primera línea del archivo correspondiente.</p></div></details>
+
+  <details><summary>25. ¿Cómo gestiona Next.js la optimización de fuentes tipográficas?</summary><div class="dbody"><p>A través del módulo <code class="kw">next/font</code>, que descarga y aloja automáticamente las fuentes en el servidor durante la compilación para evitar peticiones externas y mejorar el rendimiento.</p></div></details>
+
+  <details><summary>26. ¿Qué archivo en Next.js permite personalizar los metadatos SEO dinámicos?</summary><div class="dbody"><p>Los metadatos se definen exportando un objeto de tipo <code class="kw">Metadata</code> dentro de los archivos <code class="kw">layout.tsx</code> o <code class="kw">page.tsx</code>.</p></div></details>
+
+  <details><summary>27. ¿Cómo se crean subrutas anidadas dentro del App Router?</summary><div class="dbody"><p>Creando carpetas dentro de <code class="kw">src/app/</code> (por ejemplo, <code class="kw">src/app/contacto/</code>) e incluyendo dentro de ellas un archivo <code class="kw">page.tsx</code>.</p></div></details>
+
+  <details><summary>28. ¿Qué utilidad tiene el archivo <code class="kw">package.json</code>?</summary><div class="dbody"><p>Contiene los metadatos del proyecto, los scripts ejecutables (<code class="kw">dev</code>, <code class="kw">build</code>, <code class="kw">start</code>, <code class="kw">lint</code>) y la lista exacta con las versiones de las dependencias instaladas.</p></div></details>
+
+  <details><summary>29. ¿Qué es el archivo <code class="kw">package-lock.json</code> y por qué no debe borrarse ni editarse a mano?</summary><div class="dbody"><p>Registra el árbol de dependencias exacto e inmutable instalado en un momento dado, garantizando que el proyecto se instale de forma idéntica en cualquier equipo. Editarlo a mano puede romper esa garantía.</p></div></details>
+
+  <details><summary>30. ¿Cómo se maneja el renderizado de imágenes de forma optimizada en Next.js?</summary><div class="dbody"><p>Mediante el componente de imagen optimizado de <code class="kw">next/image</code>, que redimensiona, optimiza formatos y aplica carga perezosa (<em>lazy loading</em>) automáticamente.</p></div></details>
+
+  <details><summary>31. ¿Qué hace el comando <code class="kw">npm run build</code>?</summary><div class="dbody"><p>Compila y optimiza la aplicación para entornos de producción, generando los artefactos necesarios para el despliegue final.</p></div></details>
+
+  <details><summary>32. ¿Qué plataforma se recomienda oficialmente para desplegar aplicaciones Next.js?</summary><div class="dbody"><p>Vercel, la plataforma de alojamiento creada por los mismos desarrolladores de Next.js, que ofrece despliegues automáticos desde Git.</p></div></details>
+
+  <details><summary>33. ¿Cómo se definen variables de entorno en Next.js de forma segura?</summary><div class="dbody"><p>Creando un archivo <code class="kw">.env.local</code> en la raíz del proyecto y utilizando el prefijo <code class="kw">NEXT_PUBLIC_</code> únicamente en las variables que se requieran exponer al lado del cliente.</p></div></details>
+</section>
+
+<!-- ================= ERRORES ================= -->
+<section class="sec" id="s5" data-t="ERRORES">
+  <h2>Guía de solución de problemas y errores frecuentes</h2>
+  <p>Los errores son información, no fracasos. Antes de tocar nada, lee el mensaje completo: casi siempre indica el archivo, la línea y el motivo.</p>
+
+  <div class="tw">
+    <table>
+      <thead><tr><th>Problema / Error</th><th>Causa probable</th><th>Solución paso a paso</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code class="kw">EADDRINUSE: port 3000 is already in use</code></td>
+          <td>Ya hay otro servidor o proceso ejecutándose en el puerto 3000.</td>
+          <td>1. Vuelve a la terminal donde arrancaste el servidor.<br>2. Detén el servidor anterior con <kbd>Ctrl</kbd> + <kbd>C</kbd>.<br>3. Arranca de nuevo con <code class="kw">npm run dev</code>.<br>4. Si sigue ocupado, acepta cambiar al puerto 3001 cuando la terminal lo pregunte.</td>
+        </tr>
+        <tr>
+          <td><code class="kw">'node' no se reconoce como un comando</code></td>
+          <td>Node.js no se instaló correctamente o no se añadieron sus variables de entorno.</td>
+          <td>1. Reinicia Visual Studio Code.<br>2. Si persiste, reinstala Node.js desde su sitio web oficial.<br>3. Asegúrate de descargar la versión LTS.<br>4. Vuelve a comprobar con <code class="kw">node -v</code>.</td>
+        </tr>
+        <tr>
+          <td>Errores de sintaxis o de tipo en TypeScript</td>
+          <td>Declaración incorrecta de variables o tipos incompatibles.</td>
+          <td>1. Revisa las sugerencias que el editor resalta en rojo.<br>2. Lee el mensaje completo: indica archivo y línea.<br>3. Consulta la sintaxis recomendada en la consola.<br>4. Corrige y guarda: la recarga es automática.</td>
+        </tr>
+        <tr>
+          <td>El navegador muestra una pantalla blanca o un error 404</td>
+          <td>Error al renombrar o borrar archivos estructurales como <code class="kw">layout.tsx</code>.</td>
+          <td>1. Asegúrate de no mover ni eliminar los archivos clave dentro de <code class="kw">src/app</code>.<br>2. Comprueba que existe <code class="kw">src/app/page.tsx</code>.<br>3. Detén el servidor con <kbd>Ctrl</kbd> + <kbd>C</kbd> y vuelve a arrancarlo.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Otros avisos habituales al seguir esta guía</h3>
+  <p>Estos avisos no aparecen literalmente en la guía original, pero se derivan de ella y de sus propias recomendaciones.</p>
+
+  <details>
+    <summary>«Could not create a project called "mi app" because of npm naming restrictions»</summary>
+    <div class="dbody">
+      <p><strong>Causa:</strong> npm no admite espacios ni mayúsculas en los nombres de paquete.</p>
+      <p><strong>Solución:</strong> vuelve a ejecutar <code class="kw">npx create-next-app@latest</code> y escribe el nombre en minúsculas y sin espacios, por ejemplo <code class="kw">mi-app</code>.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>La terminal dice que no encuentra el archivo o la carpeta</summary>
+    <div class="dbody">
+      <p><strong>Causa:</strong> la terminal está situada en un directorio distinto del que esperas.</p>
+      <p><strong>Solución:</strong> usa <code class="kw">cd</code> para entrar en la carpeta correcta y comprueba que dentro existe el archivo <code class="kw">package.json</code>. Los comandos <code class="kw">npm</code> deben ejecutarse siempre dentro de la carpeta del proyecto.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Guardo cambios y el navegador no los muestra</summary>
+    <div class="dbody">
+      <p><strong>Causa:</strong> puede tratarse de un problema de caché de Next.js o de que el archivo guardado no es el que crees.</p>
+      <p><strong>Solución:</strong> comprueba la ruta del archivo en la barra del editor, recarga el navegador con <kbd>F5</kbd> y, si persiste, detén el servidor con <kbd>Ctrl</kbd> + <kbd>C</kbd> y vuelve a ejecutar <code class="kw">npm run dev</code>.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Cambio algo en <code class="kw">page.tsx</code> y la página se queda igual</summary>
+    <div class="dbody">
+      <p><strong>Causa:</strong> es frecuente haber editado el archivo equivocado o no haber guardado.</p>
+      <p><strong>Solución:</strong> confirma que el archivo abierto es <code class="kw">src/app/page.tsx</code>, guarda con <kbd>Ctrl</kbd> + <kbd>S</kbd> y observa si en la terminal aparece el mensaje de recompilación.</p>
+    </div>
+  </details>
+
+  <h3>Cómo leer un mensaje de error</h3>
+  <div class="card">
+    <ol>
+      <li><strong>Busca el archivo y la línea.</strong> Casi todos los mensajes incluyen algo como <code class="kw">./src/app/page.tsx:12</code>.</li>
+      <li><strong>Lee la última línea primero.</strong> El resumen del error suele estar al final del bloque.</li>
+      <li><strong>No cambies diez cosas a la vez.</strong> Corrige una, guarda y comprueba.</li>
+      <li><strong>Deshaz si empeora.</strong> Vuelve al último estado que funcionaba antes de seguir investigando.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= RESUMEN ================= -->
+<section class="sec" id="s6" data-t="RESUMEN">
+  <h2>Resumen, glosario y listas de comprobación</h2>
+
+  <h3>Resumen por capítulos</h3>
+  <div class="grid2">
+    <div class="card"><h4>Introducción y fundamentos</h4><p>React es la librería de componentes; Next.js es el framework que añade enrutamiento, renderizado en servidor y herramientas listas para producción. El App Router de la carpeta <code class="kw">src/app</code> usa React Server Components por defecto.</p></div>
+    <div class="card"><h4>Requisitos previos</h4><p>Node.js LTS (que incluye npm), Visual Studio Code y su terminal integrada. El comando <code class="kw">cd</code> sitúa la terminal en la carpeta de trabajo.</p></div>
+    <div class="card"><h4>Inicialización</h4><p><code class="kw">npx create-next-app@latest</code> abre un asistente de ocho preguntas. En esta guía: nombre del proyecto, TypeScript sí, ESLint sí, Tailwind sí, carpeta <code class="kw">src</code> sí, App Router sí, Turbo pack no, alias por defecto no.</p></div>
+    <div class="card"><h4>Estructura de archivos</h4><p><code class="kw">layout.tsx</code> es el contenedor global; <code class="kw">page.tsx</code> es el contenido de la ruta raíz; <code class="kw">globals.css</code> contiene los estilos globales. En la raíz viven los archivos de configuración.</p></div>
+    <div class="card"><h4>Servidor de desarrollo</h4><p><code class="kw">npm run dev</code> arranca el servidor. Se abre con <kbd>Ctrl</kbd> + clic sobre la URL y se detiene con <kbd>Ctrl</kbd> + <kbd>C</kbd>.</p></div>
+    <div class="card"><h4>Práctica</h4><p>Componentes de cliente con <code class="kw">'use client';</code>, rutas creadas con carpetas y <code class="kw">page.tsx</code>, y una Dev Card construida con Tailwind CSS.</p></div>
+  </div>
+
+  <h3>Glosario técnico para principiantes absolutos</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Término</th><th>Definición</th></tr></thead>
+      <tbody>
+        <tr><td><strong>App Router</strong></td><td>Nuevo sistema de enrutamiento de Next.js que utiliza carpetas y convenciones de nombres de archivos para crear rutas y diseños jerárquicos.</td></tr>
+        <tr><td><strong>Client-Side Rendering (CSR)</strong></td><td>Modalidad donde el código JavaScript se descarga y ejecuta completamente en el navegador del usuario para construir la interfaz.</td></tr>
+        <tr><td><strong>Componente React</strong></td><td>Bloque de código reutilizable e independiente (generalmente escrito en formato JSX/TSX) que devuelve elementos HTML para ser renderizados.</td></tr>
+        <tr><td><strong>ESLint</strong></td><td>Herramienta estática para identificar y corregir errores de código o falta de cumplimiento de reglas de calidad.</td></tr>
+        <tr><td><strong>Framework</strong></td><td>Estructura de software prediseñada que proporciona componentes, herramientas y reglas estándar para construir aplicaciones web de forma más eficiente.</td></tr>
+        <tr><td><strong>Layout</strong></td><td>Plantilla envolvente compartida entre varias páginas que preserva el estado y no se vuelve a renderizar al cambiar de ruta.</td></tr>
+        <tr><td><strong>LTS (Long Term Support)</strong></td><td>Versión de software garantizada para recibir soporte técnico y parches de seguridad durante un periodo prolongado.</td></tr>
+        <tr><td><strong>Node.js</strong></td><td>Entorno de ejecución que permite utilizar JavaScript fuera de los navegadores web, especialmente en servidores locales o remotos.</td></tr>
+        <tr><td><strong>npm</strong></td><td>Gestor de paquetes oficial de Node.js que permite descargar librerías e interactuar con proyectos.</td></tr>
+        <tr><td><strong>npx</strong></td><td>Ejecutador de paquetes de npm que descarga e invoca herramientas ejecutables sin necesidad de instalarlas globalmente.</td></tr>
+        <tr><td><strong>Server Components</strong></td><td>Componentes de React que se ejecutan y renderizan exclusivamente en el servidor, reduciendo el volumen de JavaScript enviado al navegador.</td></tr>
+        <tr><td><strong>Tailwind CSS</strong></td><td>Framework CSS basado en clases de utilidad directo sobre el HTML/TSX para estilizar interfaces rápidamente.</td></tr>
+        <tr><td><strong>Terminal / Consola</strong></td><td>Interfaz basada en texto que permite enviar instrucciones directas al sistema operativo o a herramientas de desarrollo.</td></tr>
+        <tr><td><strong>TypeScript</strong></td><td>Lenguaje de programación desarrollado sobre JavaScript que añade tipado estático opcional para prevenir errores.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Comandos esenciales</h3>
+  <div class="code">
+    <div class="code-h"><span class="lang">Chuleta de comandos</span><button class="copy" type="button">Copiar</button></div>
+    <pre><code>node -v                        Comprobar la versión de Node.js
+npm -v                         Comprobar la versión de npm
+cd C:/Ruta/De/Tu/Carpeta       Cambiar de carpeta
+npx create-next-app@latest     Crear un proyecto Next.js
+npm run dev                    Arrancar el servidor de desarrollo
+Ctrl + C                       Detener el servidor
+npm run build                  Compilar para producción</code></pre>
+  </div>
+
+  <h3>Lista de aceptación final</h3>
+  <p>Marca cada punto cuando lo tengas verificado en tu equipo.</p>
+  <ul class="cklist">
+    <li><input type="checkbox" class="ck" id="ck6a" data-k="ck6a"><label for="ck6a"><code class="kw">node -v</code> y <code class="kw">npm -v</code> devuelven un número de versión.</label></li>
+    <li><input type="checkbox" class="ck" id="ck6b" data-k="ck6b"><label for="ck6b">El asistente <code class="kw">create-next-app</code> terminó sin errores.</label></li>
+    <li><input type="checkbox" class="ck" id="ck6c" data-k="ck6c"><label for="ck6c">Existen <code class="kw">src/app/layout.tsx</code>, <code class="kw">src/app/page.tsx</code> y <code class="kw">src/app/globals.css</code>.</label></li>
+    <li><input type="checkbox" class="ck" id="ck6d" data-k="ck6d"><label for="ck6d"><code class="kw">npm run dev</code> arranca y <code class="kw">localhost:3000</code> carga en el navegador.</label></li>
+    <li><input type="checkbox" class="ck" id="ck6e" data-k="ck6e"><label for="ck6e">He modificado <code class="kw">page.tsx</code> y el cambio aparece sin recargar a mano.</label></li>
+    <li><input type="checkbox" class="ck" id="ck6f" data-k="ck6f"><label for="ck6f">He creado al menos una ruta nueva con su carpeta y su <code class="kw">page.tsx</code>.</label></li>
+    <li><input type="checkbox" class="ck" id="ck6g" data-k="ck6g"><label for="ck6g">Sé detener el servidor con <kbd>Ctrl</kbd> + <kbd>C</kbd>.</label></li>
+  </ul>
+
+  <div class="okbox"><strong>Enhorabuena</strong> Has recorrido el ciclo completo: entender, instalar, crear, comprender la estructura, ejecutar y modificar. Ese es exactamente el punto de partida profesional.</div>
+</section>
+
+<!-- ================= FUENTES ================= -->
+<section class="sec" id="s7" data-t="FUENTES">
+  <h2>Fuentes fiables y documentación oficial</h2>
+  <p>Este tutorial se ha elaborado a partir del material de referencia y de la documentación oficial de las tecnologías implicadas. Consulta siempre la fuente original cuando necesites el detalle exacto de una versión concreta.</p>
+
+  <div class="card">
+    <h3>1. Documentación oficial de Next.js</h3>
+    <p>Portal oficial de Next.js: guías completas sobre App Router, instalación, Server Components e integraciones.</p>
+    <p><a href="https://nextjs.org/docs" target="_blank" rel="noopener noreferrer">https://nextjs.org/docs</a></p>
+  </div>
+
+  <div class="card">
+    <h3>2. Documentación oficial de Node.js</h3>
+    <p>Portal oficial de Node.js: especificaciones del entorno de ejecución de JavaScript y del gestor de paquetes npm.</p>
+    <p><a href="https://nodejs.org" target="_blank" rel="noopener noreferrer">https://nodejs.org</a><br>
+    <a href="https://docs.npmjs.com" target="_blank" rel="noopener noreferrer">https://docs.npmjs.com</a></p>
+  </div>
+
+  <div class="card">
+    <h3>3. Documentación oficial de React</h3>
+    <p>Portal oficial de React: guías interactivas sobre componentes, hooks, estado y arquitectura de interfaces.</p>
+    <p><a href="https://react.dev" target="_blank" rel="noopener noreferrer">https://react.dev</a></p>
+  </div>
+
+  <div class="card">
+    <h3>4. Documentación oficial de Tailwind CSS</h3>
+    <p>Portal oficial de Tailwind CSS: guía completa de clases utilitarias y reglas de diseño responsivo.</p>
+    <p><a href="https://tailwindcss.com/docs" target="_blank" rel="noopener noreferrer">https://tailwindcss.com/docs</a></p>
+  </div>
+
+  <div class="card">
+    <h3>5. Tutorial de referencia del proyecto</h3>
+    <p>Vídeo tutorial: «Crear un nuevo proyecto con React y Next.js (fácil y en menos de 4 minutos)», de Rubén Sbarsky / Carlos Daniel.</p>
+    <p>Guía base utilizada como fuente principal de este manual.</p>
+  </div>
+
+  <h3>Lista de enlaces para copiar</h3>
+  <div class="code">
+    <div class="code-h"><span class="lang">URL</span><button class="copy" type="button">Copiar</button></div>
+    <pre><code>https://nextjs.org/docs
+https://nodejs.org
+https://docs.npmjs.com
+https://react.dev
+https://tailwindcss.com/docs</code></pre>
+  </div>
+
+  <div class="note"><strong>Nota sobre la verificación</strong> Los enlaces anteriores corresponden a portales oficiales estables. Este archivo no carga ningún recurso externo: solo los enlaza para que puedas consultarlos cuando tengas conexión.</div>
+</section>
+
+<!-- ================= CRÉDITOS ================= -->
+<section class="sec" id="s8" data-t="CRÉDITOS">
+  <h2>Créditos</h2>
+
+  <div class="hero-art" id="heroCred" role="img" aria-label="Ilustración animada: un servidor envía datos a un núcleo de componentes React, que se conecta con el navegador del cliente; las páginas del App Router orbitan alrededor."></div>
+
+  <p style="margin-top:18px">La ilustración representa el recorrido de una aplicación Next.js: un servidor que renderiza, un núcleo de componentes React que organiza la interfaz y un navegador cliente que la muestra. Alrededor orbitan las páginas del App Router, conectadas por flujos de datos.</p>
+
+  <div class="card" style="text-align:center">
+    <p class="author">Rubén Sbarsky</p>
+    <p class="author-role">Autor del tutorial</p>
+    <p style="margin-bottom:6px"><span class="badge">Versión V001</span></p>
+    <p style="color:var(--tx2);font-size:.9rem;margin:10px 0 0">Fecha y hora de creación: <strong>29/10/2026 — 10:15:05</strong></p>
+    <p style="color:var(--tx2);font-size:.9rem;margin:4px 0 0">Archivo: <code class="kw">tutorial_react_nextjs_V001.html</code></p>
+  </div>
+
+  <div class="card">
+    <h3>Información adicional</h3>
+    <ul>
+      <li><strong>Base documental:</strong> guía de Rubén Sbarsky / Carlos Daniel y documentación oficial de Next.js, React y Node.js.</li>
+      <li><strong>Formato:</strong> archivo HTML único, autónomo y sin dependencias externas. Funciona sin conexión.</li>
+      <li><strong>Contenido:</strong> fundamentos, procedimiento guiado, práctica con proyecto integrador, 33 preguntas y respuestas, guía de errores y glosario.</li>
+      <li><strong>Accesibilidad:</strong> navegación por teclado, foco visible y respeto por la preferencia de movimiento reducido.</li>
+    </ul>
+    <p style="margin-bottom:0;color:var(--tx2);font-size:.88rem">Las notas añadidas que no figuran literalmente en las fuentes están marcadas expresamente como «nota del tutorial».</p>
+  </div>
+</section>
+
+</main>
+
+<button id="top" type="button" aria-label="Volver arriba">↑</button>
+
+<noscript>
+  <div style="position:fixed;inset:auto 0 0 0;background:#fbbf24;color:#0a0e1a;padding:12px;text-align:center;z-index:99;font-weight:600">
+    Este tutorial necesita JavaScript activado para cambiar de sección. Actívalo y recarga la página.
+  </div>
+</noscript>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Utilidades ---------- */
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var $$ = function (sel, root) {
+    return Array.prototype.slice.call((root || document).querySelectorAll(sel));
+  };
+  var norm = function (txt) {
+    return String(txt || '').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, ' ').trim();
+  };
+
+  /* ---------- Estado persistente ---------- */
+  var KEY = 'tutorial_react_nextjs_v001';
+  var store = { sec: 0, theme: 'dark', fs: 16, ck: {} };
+
+  function loadStore() {
+    try {
+      var raw = window.localStorage.getItem(KEY);
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data && typeof data === 'object') {
+          if (typeof data.sec === 'number') { store.sec = data.sec; }
+          if (data.theme === 'light' || data.theme === 'dark') { store.theme = data.theme; }
+          if (typeof data.fs === 'number') { store.fs = data.fs; }
+          if (data.ck && typeof data.ck === 'object') { store.ck = data.ck; }
+        }
+      }
+    } catch (err) { /* almacenamiento no disponible: se continúa sin persistencia */ }
+  }
+
+  function saveStore() {
+    try {
+      window.localStorage.setItem(KEY, JSON.stringify(store));
+    } catch (err) { /* silencioso a propósito */ }
+  }
+
+  /* ---------- Referencias del DOM ---------- */
+  var secs = $$('.sec');
+  var chipsBox = $('#chips');
+  var dr = $('#dr');
+  var drList = $('#drList');
+  var mb = $('#mb');
+  var q = $('#q');
+  var prog = $('#prog');
+  var topBtn = $('#top');
+
+  var cur = 0;
+  var drLinks = [];
+
+  function titleOf(section) {
+    var t = section.getAttribute('data-t');
+    if (t) { return t; }
+    var h2 = section.querySelector('h2');
+    return h2 ? h2.textContent.trim() : 'Sección';
+  }
+
+  /* ---------- Construcción de chips y navegación ---------- */
+  function buildChips() {
+    chipsBox.innerHTML = '';
+    secs.forEach(function (s, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = titleOf(s);
+      b.setAttribute('data-i', String(i));
+      b.setAttribute('role', 'tab');
+      b.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+      b.addEventListener('click', function () { go(i); });
+      chipsBox.appendChild(b);
+    });
+  }
+
+  function buildSecNav() {
+    secs.forEach(function (s, i) {
+      var nav = document.createElement('div');
+      nav.className = 'secnav';
+
+      var prev = document.createElement('button');
+      prev.type = 'button';
+      prev.className = 'btn ghost';
+      prev.textContent = '← Anterior';
+      prev.setAttribute('data-nav', '-1');
+      if (i === 0) { prev.disabled = true; }
+
+      var next = document.createElement('button');
+      next.type = 'button';
+      next.className = 'btn ghost';
+      next.textContent = 'Siguiente →';
+      next.setAttribute('data-nav', '1');
+      if (i === secs.length - 1) { next.disabled = true; }
+
+      nav.appendChild(prev);
+      nav.appendChild(next);
+      s.appendChild(nav);
+    });
+  }
+
+  function go(i, instant) {
+    if (typeof i !== 'number' || isNaN(i)) { return; }
+    if (i < 0) { i = 0; }
+    if (i > secs.length - 1) { i = secs.length - 1; }
+    cur = i;
+
+    secs.forEach(function (s, j) { s.classList.toggle('on', j === i); });
+
+    $$('.chip[data-i]', chipsBox).forEach(function (c, j) {
+      var active = (j === i);
+      c.classList.toggle('active', active);
+      c.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+
+    if (!q.value.trim()) {
+      drLinks.forEach(function (a, j) {
+        a.classList.toggle('on', j === i);
+        if (j === i) { a.setAttribute('aria-current', 'page'); }
+        else { a.removeAttribute('aria-current'); }
+      });
+    }
+
+    mountVisibleSVGs();
+    window.scrollTo(0, 0);
+    if (instant !== true) { /* el scroll ya se ha aplicado */ }
+
+    store.sec = i;
+    saveStore();
+  }
+
+  /* ---------- Panel índice ---------- */
+  function tg(v) {
+    var open;
+    if (typeof v === 'boolean') { open = v; }
+    else { open = !dr.classList.contains('o'); }
+    dr.classList.toggle('o', open);
+    mb.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function searchSections(term) {
+    var nq = norm(term);
+    if (nq.length < 2) { return []; }
+    var out = [];
+    secs.forEach(function (s, i) {
+      if (norm(s.textContent).indexOf(nq) === -1) { return; }
+      var snippet = '';
+      var cands = s.querySelectorAll('p, li, td, th, h2, h3, summary');
+      for (var k = 0; k < cands.length; k++) {
+        var el = cands[k];
+        if (norm(el.textContent).indexOf(nq) > -1) {
+          snippet = el.textContent.replace(/\s+/g, ' ').trim().slice(0, 92);
+          break;
+        }
+      }
+      out.push({ i: i, snip: snippet || 'Coincide en esta sección' });
+    });
+    return out;
+  }
+
+  function renderDr() {
+    var term = q.value.trim();
+    drList.innerHTML = '';
+    drLinks = [];
+
+    if (term.length >= 2) {
+      var results = searchSections(term);
+      if (!results.length) {
+        var empty = document.createElement('p');
+        empty.className = 'dr-empty';
+        empty.textContent = 'Sin resultados para «' + term + '».';
+        drList.appendChild(empty);
+        return;
+      }
+      results.forEach(function (r) {
+        var a = document.createElement('a');
+        a.href = '#s' + r.i;
+        a.className = 'dr-r';
+        a.innerHTML = '<strong></strong><span></span>';
+        a.firstChild.textContent = titleOf(secs[r.i]);
+        a.lastChild.textContent = r.snip;
+        a.addEventListener('click', function (ev) {
+          ev.preventDefault();
+          go(r.i);
+          q.value = '';
+          renderDr();
+          tg(false);
+        });
+        drList.appendChild(a);
+        drLinks.push(a);
+      });
+      return;
+    }
+
+    secs.forEach(function (s, i) {
+      var a = document.createElement('a');
+      a.href = '#s' + i;
+      a.textContent = (i ? i + '. ' : '') + titleOf(s);
+      if (i === cur) {
+        a.classList.add('on');
+        a.setAttribute('aria-current', 'page');
+      }
+      a.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        go(i);
+        tg(false);
+      });
+      drList.appendChild(a);
+      drLinks.push(a);
+    });
+  }
+
+  /* ---------- Plantilla SVG única ---------- */
+  var SVG_TPL = '' +
+'<svg class="hero-svg" viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" focusable="false" aria-hidden="true">' +
+  '<defs>' +
+    '<linearGradient id="bg__U__" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="#070c16"/>' +
+      '<stop offset="0.55" stop-color="#0d1729"/>' +
+      '<stop offset="1" stop-color="#081324"/>' +
+    '</linearGradient>' +
+    '<radialGradient id="halo__U__" cx="50%" cy="50%" r="50%">' +
+      '<stop offset="0" stop-color="#38bdf8" stop-opacity="0.55"/>' +
+      '<stop offset="0.55" stop-color="#0ea5e9" stop-opacity="0.16"/>' +
+      '<stop offset="1" stop-color="#0ea5e9" stop-opacity="0"/>' +
+    '</radialGradient>' +
+    '<linearGradient id="beam__U__" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#38bdf8" stop-opacity="0"/>' +
+      '<stop offset="0.5" stop-color="#38bdf8" stop-opacity="0.65"/>' +
+      '<stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>' +
+    '</linearGradient>' +
+    '<linearGradient id="card__U__" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="#16324f"/>' +
+      '<stop offset="1" stop-color="#0c1a2c"/>' +
+    '</linearGradient>' +
+    '<linearGradient id="core__U__" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="#0ea5e9"/>' +
+      '<stop offset="1" stop-color="#22d3ee"/>' +
+    '</linearGradient>' +
+    '<filter id="soft__U__" x="-70%" y="-70%" width="240%" height="240%">' +
+      '<feGaussianBlur stdDeviation="5"/>' +
+    '</filter>' +
+  '</defs>' +
+
+  '<rect width="400" height="500" fill="url(#bg__U__)"/>' +
+
+  '<g stroke="#1e3a5f" stroke-width="1" opacity="0.5">' +
+    '<path d="M0 60H400M0 120H400M0 180H400M0 240H400M0 300H400M0 360H400M0 420H400M0 480H400" stroke-opacity="0.30"/>' +
+    '<path d="M40 0V500M120 0V500M200 0V500M280 0V500M360 0V500" stroke-opacity="0.20"/>' +
+  '</g>' +
+
+  '<rect x="0" y="0" width="400" height="90" fill="url(#beam__U__)" opacity="0.16">' +
+    '<animateTransform attributeName="transform" type="translate" from="0 -110" to="0 520" dur="11s" repeatCount="indefinite"/>' +
+  '</rect>' +
+
+  '<circle cx="120" cy="140" r="110" fill="url(#halo__U__)" class="hv-breathe"/>' +
+  '<circle cx="290" cy="380" r="120" fill="url(#halo__U__)" class="hv-breathe" style="animation-delay:-3s"/>' +
+
+  '<g fill="#7dd3fc">' +
+    '<circle cx="52" cy="96" r="1.8" class="hv-float" style="animation-duration:6s"/>' +
+    '<circle cx="330" cy="120" r="2.3" class="hv-float" style="animation-duration:8s;animation-delay:-2s"/>' +
+    '<circle cx="70" cy="300" r="1.6" class="hv-float" style="animation-duration:7s;animation-delay:-1s"/>' +
+    '<circle cx="342" cy="300" r="2" class="hv-float" style="animation-duration:9s;animation-delay:-4s"/>' +
+    '<circle cx="96" cy="430" r="1.7" class="hv-float" style="animation-duration:6.5s;animation-delay:-3s"/>' +
+    '<circle cx="316" cy="440" r="1.9" class="hv-float" style="animation-duration:7.5s;animation-delay:-1.5s"/>' +
+    '<circle cx="28" cy="200" r="1.4" class="hv-float" style="animation-duration:10s;animation-delay:-5s"/>' +
+    '<circle cx="372" cy="210" r="1.5" class="hv-float" style="animation-duration:8.5s;animation-delay:-2.5s"/>' +
+  '</g>' +
+
+  '<g font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12" fill="#38bdf8" opacity="0.75">' +
+    '<text x="48" y="330" class="hv-rise" style="animation-delay:-1s">{ }</text>' +
+    '<text x="316" y="250" class="hv-rise" style="animation-delay:-4s">=&gt;</text>' +
+    '<text x="62" y="250" class="hv-rise" style="animation-delay:-6s">&lt;div&gt;</text>' +
+    '<text x="300" y="410" class="hv-rise" style="animation-delay:-2.5s">.tsx</text>' +
+    '<text x="150" y="470" class="hv-rise" style="animation-delay:-5.5s">npm run dev</text>' +
+  '</g>' +
+
+  /* --- Nodo servidor --- */
+  '<g class="hv-float" style="animation-duration:9s">' +
+    '<rect x="140" y="34" width="120" height="52" rx="10" fill="#0f172a" stroke="#1e3a5f" stroke-width="1.2"/>' +
+    '<rect x="152" y="46" width="96" height="9" rx="4.5" fill="#1e3a5f"/>' +
+    '<rect x="152" y="61" width="70" height="7" rx="3.5" fill="#164e63"/>' +
+    '<rect x="152" y="73" width="86" height="5" rx="2.5" fill="#16304f"/>' +
+    '<circle cx="238" cy="50" r="3" fill="#34d399" class="hv-led"/>' +
+    '<circle cx="248" cy="50" r="3" fill="#fbbf24" class="hv-led" style="animation-delay:-0.7s"/>' +
+    '<circle cx="258" cy="50" r="3" fill="#38bdf8" class="hv-led" style="animation-delay:-1.4s"/>' +
+  '</g>' +
+  '<text x="200" y="104" text-anchor="middle" font-size="9" letter-spacing="2" fill="#94a3b8" font-family="system-ui,sans-serif">SERVIDOR</text>' +
+
+  /* --- Núcleo --- */
+  '<circle cx="200" cy="250" r="120" fill="url(#halo__U__)" class="hv-breathe"/>' +
+  '<circle cx="200" cy="250" r="98" fill="none" stroke="#1e3a5f" stroke-width="1" stroke-dasharray="3 9" opacity="0.7">' +
+    '<animateTransform attributeName="transform" type="rotate" from="0 200 250" to="360 200 250" dur="60s" repeatCount="indefinite"/>' +
+  '</circle>' +
+  '<circle cx="200" cy="250" r="46" fill="#0b1a2e" stroke="url(#core__U__)" stroke-width="1.6"/>' +
+  '<circle cx="200" cy="250" r="30" fill="url(#halo__U__)" class="hv-pulse"/>' +
+
+  '<g fill="none" stroke="#38bdf8" stroke-width="1.15" opacity="0.8">' +
+    '<ellipse cx="200" cy="250" rx="60" ry="22">' +
+      '<animateTransform attributeName="transform" type="rotate" from="0 200 250" to="360 200 250" dur="18s" repeatCount="indefinite"/>' +
+    '</ellipse>' +
+    '<g transform="rotate(60 200 250)">' +
+      '<ellipse cx="200" cy="250" rx="60" ry="22">' +
+        '<animateTransform attributeName="transform" type="rotate" from="0 200 250" to="-360 200 250" dur="24s" repeatCount="indefinite"/>' +
+      '</ellipse>' +
+    '</g>' +
+    '<g transform="rotate(120 200 250)">' +
+      '<ellipse cx="200" cy="250" rx="60" ry="22">' +
+        '<animateTransform attributeName="transform" type="rotate" from="0 200 250" to="360 200 250" dur="30s" repeatCount="indefinite"/>' +
+      '</ellipse>' +
+    '</g>' +
+  '</g>' +
+
+  '<circle r="3.4" fill="#7dd3fc">' +
+    '<animateMotion dur="7s" repeatCount="indefinite" path="M200,250 m-60,0 a60,22 0 1,0 120,0 a60,22 0 1,0 -120,0"/>' +
+  '</circle>' +
+  '<circle r="2.4" fill="#22d3ee" opacity="0.9">' +
+    '<animateMotion dur="11s" repeatCount="indefinite" path="M200,250 m-60,0 a60,22 0 1,1 120,0 a60,22 0 1,1 -120,0"/>' +
+  '</circle>' +
+
+  '<text x="200" y="256" text-anchor="middle" font-size="19" font-weight="700" fill="#e0f2fe" font-family="ui-monospace,Menlo,Consolas,monospace">&lt;/&gt;</text>' +
+
+  /* --- Órbitas de páginas --- */
+  '<g>' +
+    '<animateTransform attributeName="transform" type="rotate" from="0 200 250" to="360 200 250" dur="30s" repeatCount="indefinite"/>' +
+    '<g transform="translate(200 152)"><g>' +
+      '<animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="30s" repeatCount="indefinite"/>' +
+      '<rect x="-19" y="-24" width="38" height="48" rx="7" fill="url(#card__U__)" stroke="#1e3a5f"/>' +
+      '<rect x="-12" y="-15" width="24" height="4" rx="2" fill="#38bdf8" opacity="0.85"/>' +
+      '<rect x="-12" y="-5" width="18" height="3" rx="1.5" fill="#475569"/>' +
+      '<rect x="-12" y="3" width="22" height="3" rx="1.5" fill="#475569"/>' +
+      '<rect x="-12" y="11" width="12" height="3" rx="1.5" fill="#475569"/>' +
+    '</g></g>' +
+    '<g transform="translate(300 250)"><g>' +
+      '<animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="30s" repeatCount="indefinite"/>' +
+      '<rect x="-19" y="-24" width="38" height="48" rx="7" fill="url(#card__U__)" stroke="#1e3a5f"/>' +
+      '<rect x="-12" y="-15" width="20" height="4" rx="2" fill="#22d3ee" opacity="0.85"/>' +
+      '<rect x="-12" y="-5" width="22" height="3" rx="1.5" fill="#475569"/>' +
+      '<rect x="-12" y="3" width="14" height="3" rx="1.5" fill="#475569"/>' +
+      '<rect x="-12" y="11" width="18" height="3" rx="1.5" fill="#475569"/>' +
+    '</g></g>' +
+    '<g transform="translate(200 348)"><g>' +
+      '<animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="30s" repeatCount="indefinite"/>' +
+      '<rect x="-19" y="-24" width="38" height="48" rx="7" fill="url(#card__U__)" stroke="#1e3a5f"/>' +
+      '<rect x="-12" y="-15" width="22" height="4" rx="2" fill="#38bdf8" opacity="0.85"/>' +
+      '<rect x="-12" y="-5" width="16" height="3" rx="1.5" fill="#475569"/>' +
+      '<rect x="-12" y="3" width="20" height="3" rx="1.5" fill="#475569"/>' +
+      '<rect x="-12" y="11" width="10" height="3" rx="1.5" fill="#475569"/>' +
+    '</g></g>' +
+    '<g transform="translate(100 250)"><g>' +
+      '<animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="30s" repeatCount="indefinite"/>' +
+      '<rect x="-19" y="-24" width="38" height="48" rx="7" fill="url(#card__U__)" stroke="#1e3a5f"/>' +
+      '<rect x="-12" y="-15" width="18" height="4" rx="2" fill="#22d3ee" opacity="0.85"/>' +
+      '<rect x="-12" y="-5" width="20" height="3" rx="1.5" fill="#475569"/>' +
+      '<rect x="-12" y="3" width="12" height="3" rx="1.5" fill="#475569"/>' +
+      '<rect x="-12" y="11" width="16" height="3" rx="1.5" fill="#475569"/>' +
+    '</g></g>' +
+  '</g>' +
+
+  /* --- Flujos de datos --- */
+  '<path d="M200 100 C200 140 200 150 200 196" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="6 8" opacity="0.85">' +
+    '<animate attributeName="stroke-dashoffset" from="0" to="-56" dur="1.4s" repeatCount="indefinite"/>' +
+  '</path>' +
+  '<path d="M200 304 C200 350 200 360 200 400" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="6 8" opacity="0.85">' +
+    '<animate attributeName="stroke-dashoffset" from="0" to="-56" dur="1.4s" repeatCount="indefinite"/>' +
+  '</path>' +
+  '<path d="M120 250 C90 250 80 300 76 380" fill="none" stroke="#22d3ee" stroke-width="1.2" stroke-dasharray="4 10" opacity="0.45">' +
+    '<animate attributeName="stroke-dashoffset" from="0" to="-42" dur="2.2s" repeatCount="indefinite"/>' +
+  '</path>' +
+  '<path d="M280 250 C310 250 320 300 324 380" fill="none" stroke="#22d3ee" stroke-width="1.2" stroke-dasharray="4 10" opacity="0.45">' +
+    '<animate attributeName="stroke-dashoffset" from="0" to="-42" dur="2.2s" repeatCount="indefinite"/>' +
+  '</path>' +
+
+  /* --- Navegador cliente --- */
+  '<g class="hv-float" style="animation-duration:8s;animation-delay:-3s">' +
+    '<rect x="118" y="404" width="164" height="82" rx="10" fill="#0f172a" stroke="#1e3a5f" stroke-width="1.2"/>' +
+    '<path d="M118 420h164" stroke="#1e3a5f" stroke-width="1"/>' +
+    '<circle cx="130" cy="412" r="2.6" fill="#f87171"/>' +
+    '<circle cx="140" cy="412" r="2.6" fill="#fbbf24"/>' +
+    '<circle cx="150" cy="412" r="2.6" fill="#34d399"/>' +
+    '<rect x="130" y="432" width="92" height="8" rx="4" fill="#1e3a5f"/>' +
+    '<rect x="130" y="447" width="130" height="5" rx="2.5" fill="#16304f"/>' +
+    '<rect x="130" y="458" width="110" height="5" rx="2.5" fill="#16304f"/>' +
+    '<rect x="130" y="470" width="62" height="9" rx="4.5" fill="#0e7490"/>' +
+  '</g>' +
+  '<text x="200" y="498" text-anchor="middle" font-size="9" letter-spacing="2" fill="#94a3b8" font-family="system-ui,sans-serif">NAVEGADOR</text>' +
+
+  '<rect x="0.5" y="0.5" width="399" height="499" rx="14" fill="none" stroke="#1e3a5f" stroke-width="1" opacity="0.6"/>' +
+'</svg>';
+
+  var svgUid = 0;
+  var REDUCED = false;
+  try {
+    REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch (err) { REDUCED = false; }
+
+  function buildSVG() {
+    svgUid += 1;
+    return SVG_TPL.replace(/__U__/g, 'i' + svgUid);
+  }
+
+  function fallbackMarkup() {
+    var raw = buildSVG();
+    return '<img alt="Ilustración del tutorial: servidor, núcleo de componentes React y navegador cliente conectados." src="data:image/svg+xml;charset=utf-8,' +
+      encodeURIComponent(raw) + '">';
+  }
+
+  function mountSVG(host) {
+    if (!host) { return; }
+    host.innerHTML = buildSVG();
+    var svg = host.querySelector('svg');
+    if (!svg) {
+      host.innerHTML = fallbackMarkup();
+      return;
+    }
+    host.classList.toggle('no-anim', REDUCED);
+    if (REDUCED) {
+      try { svg.pauseAnimations(); } catch (err) { /* sin soporte SMIL */ }
+    }
+  }
+
+  function mountVisibleSVGs() {
+    $$('.hero-art').forEach(function (host) {
+      if (host.offsetParent !== null && !host.firstElementChild) {
+        mountSVG(host);
+      }
+    });
+  }
+
+  /* ---------- Copiar al portapapeles ---------- */
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', 'readonly');
+    ta.style.position = 'fixed';
+    ta.style.top = '-1000px';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+    document.body.removeChild(ta);
+    if (!ok) { throw new Error('execCommand falló'); }
+  }
+
+  function flash(btn, msg) {
+    if (!btn) { return; }
+    if (!btn.getAttribute('data-orig')) {
+      btn.setAttribute('data-orig', btn.textContent);
+    }
+    btn.textContent = msg;
+    window.clearTimeout(btn._t);
+    btn._t = window.setTimeout(function () {
+      btn.textContent = btn.getAttribute('data-orig') || 'Copiar';
+    }, 1600);
+  }
+
+  function copyText(text, btn) {
+    var done = function () { flash(btn, '¡Copiado!'); };
+    var fail = function () {
+      flash(btn, 'Copia manual: Ctrl+C');
+      var code = btn.closest('.code') ? btn.closest('.code').querySelector('code') : null;
+      if (code && window.getSelection) {
+        var sel = window.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(code);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done).catch(function () {
+        try { legacyCopy(text); done(); } catch (err) { fail(); }
+      });
+      return;
+    }
+    try { legacyCopy(text); done(); } catch (err) { fail(); }
+  }
+
+  /* ---------- Impresión ---------- */
+  var printState = null;
+
+  function preparePrint() {
+    if (printState) { return; }
+    printState = [];
+    $$('details').forEach(function (d) {
+      printState.push({ el: d, open: d.open });
+      d.open = true;
+    });
+    $$('.hero-art').forEach(function (host) {
+      if (!host.firstElementChild) { mountSVG(host); }
+    });
+    $$('.hero-art svg').forEach(function (s) {
+      try { s.pauseAnimations(); } catch (err) { /* sin soporte */ }
+    });
+  }
+
+  function restorePrint() {
+    if (!printState) { return; }
+    printState.forEach(function (item) { item.el.open = item.open; });
+    printState = null;
+    $$('.hero-art svg').forEach(function (s) {
+      try { s.unpauseAnimations(); } catch (err) { /* sin soporte */ }
+    });
+  }
+
+  function doPrint() {
+    preparePrint();
+    try {
+      window.print();
+    } catch (err) {
+      alert('No se pudo abrir el diálogo de impresión. Abre este archivo directamente en el navegador y utiliza Ctrl+P o Cmd+P.');
+    }
+    window.setTimeout(restorePrint, 900);
+  }
+
+  /* ---------- Tema y tamaño de letra ---------- */
+  function applyTheme() {
+    document.documentElement.setAttribute('data-theme', store.theme);
+  }
+
+  function applyFont() {
+    var fs = Math.max(13, Math.min(21, store.fs));
+    store.fs = fs;
+    document.documentElement.style.fontSize = fs + 'px';
+  }
+
+  /* ---------- Listas de comprobación ---------- */
+  function applyCheckboxes() {
+    $$('input.ck').forEach(function (input) {
+      var k = input.getAttribute('data-k');
+      if (k && store.ck[k] === true) { input.checked = true; }
+    });
+  }
+
+  /* ---------- Arranque ---------- */
+  function init() {
+    loadStore();
+    applyTheme();
+    applyFont();
+
+    buildChips();
+    buildSecNav();
+    renderDr();
+    applyCheckboxes();
+
+    var start = 0;
+    if (typeof store.sec === 'number' && store.sec >= 0 && store.sec < secs.length) {
+      start = store.sec;
+    }
+    go(start);
+
+    /* Panel índice */
+    mb.addEventListener('click', function () { tg(); });
+
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (!t || !t.closest) { return; }
+      if (!t.closest('#dr') && !t.closest('#mb') && !t.closest('#ix')) {
+        tg(false);
+      }
+    });
+
+    var ix = $('#ix');
+    if (ix) { ix.addEventListener('click', function () { tg(true); }); }
+
+    /* Buscador */
+    q.addEventListener('input', renderDr);
+
+    /* Herramientas */
+    $('#fsMinus').addEventListener('click', function () {
+      store.fs -= 1; applyFont(); saveStore();
+    });
+    $('#fsPlus').addEventListener('click', function () {
+      store.fs += 1; applyFont(); saveStore();
+    });
+    $('#thm').addEventListener('click', function () {
+      store.theme = (store.theme === 'dark') ? 'light' : 'dark';
+      applyTheme(); saveStore();
+    });
+    $('#prt').addEventListener('click', doPrint);
+    $('#rst').addEventListener('click', function () {
+      try { window.localStorage.removeItem(KEY); } catch (err) { /* sin almacenamiento */ }
+      store = { sec: 0, theme: 'dark', fs: 16, ck: {} };
+      applyTheme(); applyFont();
+      $$('input.ck').forEach(function (i) { i.checked = false; });
+      q.value = '';
+      renderDr();
+      go(0);
+    });
+
+    /* Navegación por delegación */
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (!t || !t.closest) { return; }
+
+      var goBtn = t.closest('[data-go]');
+      if (goBtn) {
+        go(parseInt(goBtn.getAttribute('data-go'), 10));
+        return;
+      }
+
+      var navBtn = t.closest('[data-nav]');
+      if (navBtn) {
+        go(cur + parseInt(navBtn.getAttribute('data-nav'), 10));
+        return;
+      }
+
+      var copyBtn = t.closest('.copy');
+      if (copyBtn) {
+        var box = copyBtn.closest('.code');
+        var codeEl = box ? box.querySelector('code') : null;
+        if (codeEl) { copyText(codeEl.textContent, copyBtn); }
+      }
+    });
+
+    /* Teclado */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { tg(false); return; }
+      var tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') { return; }
+      if (e.altKey || e.ctrlKey || e.metaKey) { return; }
+      if (e.key === 'ArrowRight') { go(cur + 1); }
+      if (e.key === 'ArrowLeft') { go(cur - 1); }
+    });
+
+    /* Casillas */
+    document.addEventListener('change', function (e) {
+      var t = e.target;
+      if (t && t.classList && t.classList.contains('ck')) {
+        var k = t.getAttribute('data-k');
+        if (k) {
+          store.ck[k] = t.checked;
+          saveStore();
+        }
+      }
+    });
+
+    /* Progreso y botón arriba */
+    function onScroll() {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - window.innerHeight;
+      var pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+      prog.style.width = Math.max(0, Math.min(100, pct)) + '%';
+      if (window.scrollY > 400) { topBtn.classList.add('show'); }
+      else { topBtn.classList.remove('show'); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    topBtn.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: REDUCED ? 'auto' : 'smooth' });
+    });
+
+    /* Impresión */
+    window.addEventListener('beforeprint', preparePrint);
+    window.addEventListener('afterprint', restorePrint);
+
+    /* Montaje inicial y reparación periódica del SVG */
+    mountVisibleSVGs();
+    window.setInterval(mountVisibleSVGs, 2500);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
